@@ -5,10 +5,14 @@
 pub mod api;
 pub mod config;
 pub mod frontmatter;
+pub mod graph;
 pub mod markers;
 pub mod note;
+pub mod query;
 pub mod render;
+pub mod search;
 pub mod text;
+pub mod vault;
 
 pub use api::Engine;
 pub use config::Config;

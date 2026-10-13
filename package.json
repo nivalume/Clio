@@ -4,8 +4,13 @@
   "description": "A knowledge base for the agent era: Markdown with typed links, a Rust engine compiled to WebAssembly, a Bun CLI and a static site with a knowledge graph.",
   "license": "MIT",
   "type": "module",
-  "repository": { "type": "git", "url": "https://github.com/nivalume/Clio.git" },
-  "bin": { "clio": "packages/clio/bin/clio.ts" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nivalume/Clio.git"
+  },
+  "bin": {
+    "clio": "packages/clio/bin/clio.ts"
+  },
   "workspaces": ["packages/web"],
   "scripts": {
     "build:wasm": "bun scripts/build-wasm.ts",
@@ -21,7 +26,12 @@
   },
   "devDependencies": {
     "@types/bun": "1.2.4",
+    "graphology": "0.26.0",
+    "graphology-communities-louvain": "2.0.2",
+    "graphology-metrics": "2.4.2",
     "typescript": "5.6.3"
   },
-  "engines": { "bun": ">=1.2" }
+  "engines": {
+    "bun": ">=1.2"
+  }
 }

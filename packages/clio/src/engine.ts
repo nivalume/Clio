@@ -18,8 +18,13 @@ export class Engine implements EngineLike {
     return new Engine(await Wasm.load(path));
   }
 
+  /** The engine's reply exactly as it produced it (JSON text). */
+  commandRaw(cmd: Record<string, unknown> | string): string {
+    return this.wasm.call("clio_command", typeof cmd === "string" ? cmd : JSON.stringify(cmd));
+  }
+
   command<T = unknown>(cmd: Record<string, unknown>): T {
-    const reply = JSON.parse(this.wasm.call("clio_command", JSON.stringify(cmd)));
+    const reply = JSON.parse(this.commandRaw(cmd));
     if (reply && typeof reply === "object" && "error" in reply) throw new EngineError(String(reply.error));
     return reply as T;
   }
