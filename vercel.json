@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "bunx bun@1.4.2 install --frozen-lockfile",
-  "buildCommand": "bunx bun@1.4.2 scripts/build-docs.ts",
+  "installCommand": "bun install",
+  "buildCommand": "bun --version && bun scripts/build-docs.ts",
   "outputDirectory": "docs/.clio/site",
   "cleanUrls": true,
   "trailingSlash": false
