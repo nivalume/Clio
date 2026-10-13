@@ -1,7 +1,7 @@
 /** Minimal argument parser: `clio <command> [positionals] [--flag value] [--switch]`. */
 
 const VALUED = new Set([
-  "dir", "lang", "limit", "hops", "format", "starter", "out", "port", "type", "title", "id", "tags", "level", "engine", "base", "locales", "message", "op", "pin",
+  "dir", "lang", "limit", "hops", "format", "starter", "out", "port", "type", "title", "id", "tags", "level", "engine", "base", "locales", "message", "op", "pin", "clio-dep",
 ]);
 
 export interface Args {

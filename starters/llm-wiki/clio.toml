@@ -1,0 +1,24 @@
+# Clio knowledge base. Every key: https://clio-one.vercel.app/en/n/config
+title = __TITLE_TOML__
+description = ""
+base = "/"                  # URL path of the site, e.g. "/kb/" for a GitHub Pages project site
+locales = __LOCALES__       # the first one is the default language
+stale_days = 180            # `reviewed`/`updated` older than this gives a `stale` notice
+
+# Built in: notes/sources/ → source, notes/concepts/ → concept, notes/entities/ → entity,
+# notes/topics/ → topic, notes/questions/ → question, journal/ → journal.
+
+# [site]
+# repo = "https://github.com/you/kb"   # adds "edit this page" links
+# edit_path = ""                       # where the vault sits inside the repository
+# url = "https://kb.example.com"       # enables sitemap.xml and canonical links
+
+# [types.paper]
+# label = { zh = "论文", en = "Paper" }
+# required = ["summary"]
+
+# [[relations]]
+# name = "implements"
+# inverse = "implemented-by"
+# label = { zh = "实现", en = "implements" }
+# inverse_label = { zh = "被实现", en = "implemented by" }

@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show   # installs the toolchain and targets from rust-toolchain.toml
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - name: Native engine for the wasm/native comparison
+        run: cargo build --release -p clio-native
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clio-native
+          path: target/release/clio-native
+
+  bun:
+    needs: rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: clio-native
+          path: target/release
+      - run: chmod +x target/release/clio-native
+      - run: bun install --frozen-lockfile
+      - name: Committed engine and app match their sources
+        run: bun run check:fresh
+      - run: bun run typecheck
+      - run: bun test
+      - name: Handbook has no errors
+        run: bun run check
+      - name: Handbook builds
+        run: bun run build:docs
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - uses: oven-sh/setup-bun@v2
+      - name: Rebuilt clio.wasm is byte-identical to the committed one
+        run: |
+          cp packages/clio/engine/clio.wasm /tmp/committed.wasm
+          bun scripts/build-wasm.ts
+          cmp /tmp/committed.wasm packages/clio/engine/clio.wasm

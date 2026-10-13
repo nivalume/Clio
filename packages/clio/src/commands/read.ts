@@ -86,18 +86,11 @@ export async function search(vault: Vault, args: Args): Promise<number> {
   return 0;
 }
 
-/** A note plus its neighbourhood as Markdown (or JSON), ready to paste into a model's context. */
-export async function context(vault: Vault, args: Args): Promise<number> {
-  const id = requireId(args, "context");
-  const hops = num(args.flags, "hops", 1);
-  const lang = str(args.flags, "lang", vault.defaultLang)!;
+/** A note plus its neighbourhood as Markdown, ready to paste into a model's context; null if no note matches. */
+export async function contextMarkdown(vault: Vault, id: string, hops: number, lang: string): Promise<string | null> {
   const ctx = vault.context(id, hops, lang);
-  if (ctx.error) fail(`no note matches "${id}"`);
+  if (ctx.error) return null;
   const source = await Bun.file(join(vault.root, ctx.note.path)).text();
-  if (args.flags.json || str(args.flags, "format") === "json") {
-    printJson({ ...ctx, note: { ...ctx.note, source } });
-    return 0;
-  }
   const out: string[] = [];
   out.push(`# ${ctx.note.title} (${ctx.note.id}, ${ctx.note.type})`, "", `path: ${ctx.note.path}`, "", source.trim(), "");
   const byId = new Map<string, any>(ctx.neighbours.map((n: any) => [n.id, n]));
@@ -117,7 +110,23 @@ export async function context(vault: Vault, args: Args): Promise<number> {
     out.push("");
   }
   if (ctx.wanted.length) out.push("## Wanted (linked but not written yet)", "", ...ctx.wanted.map((w: string) => `- ${w}`), "");
-  print(out.join("\n"));
+  return out.join("\n");
+}
+
+export async function context(vault: Vault, args: Args): Promise<number> {
+  const id = requireId(args, "context");
+  const hops = num(args.flags, "hops", 1);
+  const lang = str(args.flags, "lang", vault.defaultLang)!;
+  if (args.flags.json || str(args.flags, "format") === "json") {
+    const ctx = vault.context(id, hops, lang);
+    if (ctx.error) fail(`no note matches "${id}"`);
+    const source = await Bun.file(join(vault.root, ctx.note.path)).text();
+    printJson({ ...ctx, note: { ...ctx.note, source } });
+    return 0;
+  }
+  const md = await contextMarkdown(vault, id, hops, lang);
+  if (md === null) fail(`no note matches "${id}"`);
+  print(md);
   return 0;
 }
 

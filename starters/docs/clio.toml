@@ -1,0 +1,22 @@
+# A documentation site built with Clio. Every key: https://clio-one.vercel.app/en/n/config
+title = __TITLE_TOML__
+description = ""
+base = "/"                  # URL path of the site, e.g. "/docs/" for a GitHub Pages project site
+locales = __LOCALES__       # the first one is the default language
+stale_days = 365
+
+# [site]
+# repo = "https://github.com/you/project"   # adds "edit this page" links
+# edit_path = "docs/"                       # where the docs sit inside the repository
+# url = "https://docs.example.com"
+
+[types.guide]
+label = { zh = "指南", en = "Guide" }
+
+[types.reference]
+label = { zh = "参考", en = "Reference" }
+
+[folders]
+"guides/" = "guide"
+"reference/" = "reference"
+"concepts/" = "concept"

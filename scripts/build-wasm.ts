@@ -19,7 +19,10 @@ if (process.argv.includes("--check")) {
   process.exit(0);
 }
 
-await $`cargo build -p clio-wasm --target wasm32-unknown-unknown --profile release-wasm`.cwd(root);
+// Strip machine-specific paths so the module is byte-identical wherever it is built.
+const cargoHome = process.env.CARGO_HOME ?? `${process.env.HOME}/.cargo`;
+const rustflags = `--remap-path-prefix=${cargoHome}=/cargo --remap-path-prefix=${root.replace(/\/$/, "")}=/clio`;
+await $`cargo build -p clio-wasm --target wasm32-unknown-unknown --profile release-wasm`.cwd(root).env({ ...process.env, RUSTFLAGS: rustflags });
 await $`cp ${root}target/wasm32-unknown-unknown/release-wasm/clio_wasm.wasm ${out}/clio.wasm`;
 await Bun.write(`${out}/SOURCE_HASH`, hash + "\n");
 const size = Bun.file(`${out}/clio.wasm`).size;

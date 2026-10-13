@@ -58,12 +58,38 @@ export async function listNotes(root: string, ignore: string[]): Promise<string[
   return out.sort();
 }
 
+/** sha256 of a file as lowercase hex. */
+export async function sha256File(path: string): Promise<string> {
+  const h = new Bun.CryptoHasher("sha256");
+  h.update(await Bun.file(path).arrayBuffer());
+  return h.digest("hex");
+}
+
+/** `raw:` and `sha256:` from a note's frontmatter, if both are there. */
+function rawRef(text: string): { raw: string; sha256: string; line: number } | null {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  if (!m || !/^raw:/m.test(m[1])) return null;
+  let fm: Record<string, unknown>;
+  try {
+    fm = (Bun.YAML.parse(m[1]) ?? {}) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+  if (typeof fm.raw !== "string" || typeof fm.sha256 !== "string") return null;
+  const line = m[1].split(/\r?\n/).findIndex((l) => l.startsWith("raw:")) + 2;
+  return { raw: fm.raw, sha256: fm.sha256.toLowerCase(), line };
+}
+
 export class Vault {
+  /** Path → modification time of every note file the engine holds. */
+  private mtimes = new Map<string, number>();
+  private rawRefs = new Map<string, { raw: string; sha256: string; line: number }>();
+  private rawCache: Diag[] | null = null;
+
   private constructor(
     readonly root: string,
     readonly settings: Settings,
     readonly engine: Engine,
-    readonly files: string[],
   ) {}
 
   static async open(dir: string, overrides: { base?: string } = {}): Promise<Vault> {
@@ -72,9 +98,9 @@ export class Vault {
     if (overrides.base) settings.engine.base = normaliseBase(overrides.base);
     const engine = await Engine.load();
     engine.command({ cmd: "config", config: settings.engine });
-    const files = await listNotes(root, settings.ignore);
-    for (const f of files) engine.upsert(f, await Bun.file(join(root, f)).text());
-    return new Vault(root, settings, engine, files);
+    const vault = new Vault(root, settings, engine);
+    await vault.sync();
+    return vault;
   }
 
   get locales(): string[] {
@@ -85,20 +111,88 @@ export class Vault {
     return this.locales[0] ?? "zh";
   }
 
+  get files(): string[] {
+    return [...this.mtimes.keys()].sort();
+  }
+
+  private load(path: string, text: string, mtime: number): void {
+    this.engine.upsert(path, text);
+    this.mtimes.set(path, mtime);
+    const ref = rawRef(text);
+    if (ref) this.rawRefs.set(path, ref);
+    else this.rawRefs.delete(path);
+    this.rawCache = null;
+  }
+
+  private drop(path: string): void {
+    this.engine.command({ cmd: "remove", path });
+    this.mtimes.delete(path);
+    this.rawRefs.delete(path);
+    this.rawCache = null;
+  }
+
+  /** Bring the engine up to date with the files on disk (new, changed and deleted notes). Returns the paths that changed. */
+  async sync(): Promise<string[]> {
+    const files = await listNotes(this.root, this.settings.ignore);
+    const changed: string[] = [];
+    const seen = new Set(files);
+    for (const f of files) {
+      const file = Bun.file(join(this.root, f));
+      const mtime = file.lastModified;
+      if (this.mtimes.get(f) === mtime) continue;
+      this.load(f, await file.text(), mtime);
+      changed.push(f);
+    }
+    for (const f of [...this.mtimes.keys()]) {
+      if (!seen.has(f)) {
+        this.drop(f);
+        changed.push(f);
+      }
+    }
+    // raw/ files may have changed even when no note did.
+    this.rawCache = null;
+    await this.checkRaw();
+    return changed;
+  }
+
   /** Re-read one file (or drop it if it was deleted). */
   async refresh(path: string): Promise<void> {
     const rel = relative(this.root, resolve(this.root, path)).split(sep).join("/");
     const file = Bun.file(join(this.root, rel));
-    if (await file.exists()) this.engine.upsert(rel, await file.text());
-    else this.engine.command({ cmd: "remove", path: rel });
+    if (await file.exists()) this.load(rel, await file.text(), file.lastModified);
+    else if (this.mtimes.has(rel)) this.drop(rel);
+    await this.checkRaw();
   }
 
+  /** Source notes whose file in raw/ is missing or no longer matches the recorded sha256. */
+  async checkRaw(): Promise<Diag[]> {
+    if (this.rawCache) return this.rawCache;
+    const out: Diag[] = [];
+    for (const [path, ref] of [...this.rawRefs.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+      const file = join(this.root, ref.raw);
+      if (!existsSync(file)) {
+        out.push({ path, level: "error", line: ref.line, code: "raw-modified", message: `\`${ref.raw}\` is missing` });
+        continue;
+      }
+      const now = await sha256File(file);
+      if (now !== ref.sha256) {
+        out.push({ path, level: "error", line: ref.line, code: "raw-modified", message: `\`${ref.raw}\` changed after ingest (sha256 is now ${now.slice(0, 12)}…)` });
+      }
+    }
+    this.rawCache = out;
+    return out;
+  }
+
+  /** Engine summary plus the raw/ check. */
   build(): BuildSummary {
-    return this.engine.command<BuildSummary>({ cmd: "build" });
+    const s = this.engine.command<BuildSummary>({ cmd: "build" });
+    return { ...s, errors: s.errors + (this.rawCache?.length ?? 0) };
   }
 
   lint(): Diag[] {
-    return this.engine.command<Diag[]>({ cmd: "lint" });
+    const diags = this.engine.command<Diag[]>({ cmd: "lint" });
+    if (!this.rawCache?.length) return diags;
+    return [...diags, ...this.rawCache].sort((a, b) => a.path.localeCompare(b.path) || a.line - b.line);
   }
 
   page<T = PagePayload>(id: string, lang = this.defaultLang): T {

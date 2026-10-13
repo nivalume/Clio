@@ -1,0 +1,6 @@
+# Clio knowledge base. Every key: https://clio-one.vercel.app/en/n/config
+title = __TITLE_TOML__
+description = ""
+base = "/"
+locales = __LOCALES__
+stale_days = 180

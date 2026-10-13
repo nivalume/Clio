@@ -1,0 +1,14 @@
+{
+  "name": "__NAME__",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "clio dev",
+    "build": "clio build",
+    "check": "clio check",
+    "serve": "clio serve"
+  },
+  "dependencies": {
+    "clio": "__CLIO_DEP__"
+  }
+}

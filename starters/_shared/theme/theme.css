@@ -1,0 +1,21 @@
+/*
+ * Theme overrides. This file loads after Clio's own styles, so any design
+ * variable set here wins. Remove the comment markers to use a line.
+ * Dark mode values go under :root[data-theme="dark"].
+ */
+:root {
+  /* --paper: #fffaef;      page background */
+  /* --ink: #141111;        text and outlines */
+  /* --yellow: #ffd440;     top bar, highlights */
+  /* --pink: #fe7da8;       buttons, links */
+  /* --cyan: #27ccf3; */
+  /* --lime: #a9d877; */
+  /* --lavender: #bbafe6; */
+  /* --orange: #f8a16f; */
+  /* --font-text: "Space Grotesk", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; */
+  /* --font-mono: "Space Mono", ui-monospace, monospace; */
+}
+
+:root[data-theme="dark"] {
+  /* --paper: #141111; */
+}

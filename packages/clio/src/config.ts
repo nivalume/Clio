@@ -58,7 +58,7 @@ export interface Settings {
   raw: Record<string, unknown>;
 }
 
-/** Paths never read as notes: build output, dependencies, raw sources, templates, agent files. */
+/** Paths never read as notes: build output, dependencies, raw sources, templates, agent skills and files. */
 export const DEFAULT_IGNORE = [
   ".clio",
   ".git",
@@ -69,6 +69,10 @@ export const DEFAULT_IGNORE = [
   "raw",
   "templates",
   "theme",
+  "skills",
+  ".claude",
+  ".agents",
+  ".github",
   "AGENTS.md",
   "CLAUDE.md",
   "README.md",
