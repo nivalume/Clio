@@ -109,6 +109,7 @@ impl Engine {
             "search" => self.search(v),
             "context" => self.context(v),
             "backlinks" => self.backlinks(v),
+            "translations" => self.translations(),
             "resolve" => {
                 self.vault();
                 let vault = self.vault.as_ref().unwrap();
@@ -364,6 +365,37 @@ impl Engine {
             .map(|c| json!({ "id": c.id, "label": c.label, "size": c.size }))
             .collect();
         json!({ "nodes": nodes, "edges": edges, "kinds": kinds, "clusters": clusters })
+    }
+
+    /// For every note and every other locale: missing, unpinned, stale or current.
+    fn translations(&mut self) -> Value {
+        self.vault();
+        let vault = self.vault.as_ref().unwrap();
+        let mut out = Vec::new();
+        for i in 0..vault.node_count() {
+            let src = &self.notes[&vault.primary[i]];
+            let mut langs = Vec::new();
+            for lang in &self.cfg.locales {
+                if lang == &src.lang {
+                    continue;
+                }
+                let entry = match vault.variants[i].get(lang) {
+                    None => json!({ "lang": lang, "status": "missing", "path": null }),
+                    Some(p) => {
+                        let t = &self.notes[p];
+                        let status = match &t.translation_of_hash {
+                            None => "unpinned",
+                            Some(h) if h == &src.hash => "current",
+                            Some(_) => "stale",
+                        };
+                        json!({ "lang": lang, "status": status, "path": t.path, "translationOfHash": t.translation_of_hash })
+                    }
+                };
+                langs.push(entry);
+            }
+            out.push(json!({ "id": src.id, "title": src.title, "path": src.path, "lang": src.lang, "hash": src.hash, "translations": langs }));
+        }
+        Value::Array(out)
     }
 
     fn lint(&mut self) -> Value {

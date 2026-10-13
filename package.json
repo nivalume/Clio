@@ -11,13 +11,17 @@
   "bin": {
     "clio": "packages/clio/bin/clio.ts"
   },
-  "workspaces": ["packages/web"],
+  "workspaces": [
+    "packages/web"
+  ],
   "scripts": {
     "build:wasm": "bun scripts/build-wasm.ts",
     "build:web": "bun scripts/build-web.ts",
-    "build:docs": "bun scripts/build-docs.ts",
+    "build:docs": "bun packages/clio/bin/clio.ts build --dir docs",
     "test": "bun test packages/clio",
-    "check": "bun packages/clio/bin/clio.ts check docs"
+    "check": "bun packages/clio/bin/clio.ts check --dir docs",
+    "check:fresh": "bun scripts/build-wasm.ts --check && bun scripts/build-web.ts --check",
+    "typecheck": "tsc -p . && tsc -p packages/web"
   },
   "dependencies": {
     "katex": "0.16.11",
@@ -25,7 +29,8 @@
     "shiki": "1.29.2"
   },
   "devDependencies": {
-    "@types/bun": "1.2.4",
+    "@types/bun": "1.4.1",
+    "@types/katex": "0.16.7",
     "graphology": "0.26.0",
     "graphology-communities-louvain": "2.0.2",
     "graphology-metrics": "2.4.2",

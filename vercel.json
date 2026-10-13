@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "bun install",
-  "buildCommand": "bun --version && bun scripts/build-docs.ts",
+  "buildCommand": "bun --version && bun scripts/build-web.ts --check && bun packages/clio/bin/clio.ts build --dir docs",
   "outputDirectory": "docs/.clio/site",
   "cleanUrls": true,
   "trailingSlash": false

@@ -5,7 +5,7 @@
 import { Glob } from "bun";
 import { existsSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
-import { loadSettings, type Settings } from "./config";
+import { loadSettings, normaliseBase, type Settings } from "./config";
 import { Engine } from "./engine";
 
 export interface Diag {
@@ -66,9 +66,10 @@ export class Vault {
     readonly files: string[],
   ) {}
 
-  static async open(dir: string): Promise<Vault> {
+  static async open(dir: string, overrides: { base?: string } = {}): Promise<Vault> {
     const root = findRoot(dir);
     const settings = await loadSettings(root);
+    if (overrides.base) settings.engine.base = normaliseBase(overrides.base);
     const engine = await Engine.load();
     engine.command({ cmd: "config", config: settings.engine });
     const files = await listNotes(root, settings.ignore);
@@ -182,6 +183,10 @@ export interface PagePayload {
   rank: number;
   cluster: number;
   data: Record<string, unknown>;
+  hash: string;
+  sourceHash: string;
+  translationOfHash: string | null;
+  assets: string[];
   error?: string;
 }
 

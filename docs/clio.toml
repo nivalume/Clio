@@ -1,0 +1,21 @@
+# Clio's own handbook, written as a Clio vault.
+title = "Clio"
+description = { zh = "面向 Agent 时代的知识库", en = "A knowledge base for the agent era" }
+base = "/"
+locales = ["zh", "en"]
+stale_days = 365
+
+[site]
+repo = "https://github.com/nivalume/Clio"
+edit_path = "docs/"
+
+[types.guide]
+label = { zh = "指南", en = "Guide" }
+
+[types.reference]
+label = { zh = "参考", en = "Reference" }
+
+[folders]
+"guides/" = "guide"
+"reference/" = "reference"
+"concepts/" = "concept"

@@ -1,6 +1,8 @@
 /** `clio` command dispatcher. */
 import { parseArgs, str, type Args } from "./args";
 import * as read from "./commands/read";
+import * as site from "./commands/site";
+import { translateStatus } from "./commands/translate";
 import { c, fail, print } from "./ui";
 import { Vault } from "./vault";
 
@@ -18,6 +20,10 @@ export const VAULT_COMMANDS: Record<string, { run: Handler; help: string }> = {
   context: { run: read.context, help: "a note and its neighbours as Markdown for a language model (--hops N)" },
   resolve: { run: read.resolveCmd, help: "which note an id, alias or title points to" },
   stats: { run: read.stats, help: "counts by type, clusters, lint totals" },
+  "translate-status": { run: translateStatus, help: "missing and stale translations; --pin <id,…> records the current source hash" },
+  build: { run: site.build, help: "write the static site to .clio/site (--out DIR, --base /path/, --no-search)" },
+  serve: { run: site.serve, help: "serve the last build (--port 4321)" },
+  dev: { run: site.dev, help: "build, serve and rebuild on change (--port 4321, --search)" },
 };
 
 /** Commands that run without an opened vault. */
@@ -50,6 +56,6 @@ export async function main(argv: string[]): Promise<number> {
   if (plain) return plain.run(args);
   const cmd = VAULT_COMMANDS[args.command];
   if (!cmd) fail(`unknown command "${args.command}"; run clio --help`);
-  const vault = await Vault.open(str(args.flags, "dir", process.cwd())!);
+  const vault = await Vault.open(str(args.flags, "dir", process.cwd())!, { base: str(args.flags, "base") });
   return cmd.run(vault, args);
 }

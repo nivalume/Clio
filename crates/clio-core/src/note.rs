@@ -655,7 +655,13 @@ pub fn parse_note(path: &str, source: &str, cfg: &Config) -> Note {
             v if is_leaf_block(v) => plain(n),
             _ => continue,
         };
-        let t = text::squash(&t);
+        let mut t = text::squash(&t);
+        // A trailing `^block-id` names the block; it is not part of its text.
+        if !matches!(v, NodeValue::CodeBlock(_)) {
+            if let Some((caret, _)) = trailing_block_id(&t) {
+                t = t[..caret].trim_end().to_string();
+            }
+        }
         if t.is_empty() {
             continue;
         }

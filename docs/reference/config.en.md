@@ -1,0 +1,301 @@
+---
+title: Configuration
+summary: Every clio.toml key (type, default, example), the theme.css variables, and the clio.config.ts plugin interface.
+tags: [config, reference]
+rel:
+  part-of: index
+  see-also: [customizing, vault-layout]
+updated: 2026-10-13
+translation-of-hash: "a037db2861c1"
+---
+# Configuration
+
+A vault is configured in three places: `clio.toml` at the root (site, languages, types, relations, build), `theme/theme.css` (appearance) and `clio.config.ts` (render plugins). All three are optional; anything missing takes its default. For when and how to change them, see [[customizing]].
+
+## Where clio.toml lives
+
+`clio` searches upward from the current directory (or `--dir`) for `clio.toml`; its directory is the vault root. All paths — the keys of `[folders]`, the entries of `[build] ignore` — are relative to that directory and use `/`. The file is TOML, read by Bun's built-in parser.
+
+An empty `clio.toml` is valid: every key has a default.
+
+## Top-level keys
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `title` | string | `"Clio"` | Site title, shown in the top bar, the browser tab and `llms.txt` |
+| `description` | string | `""` | Site description, used on the home page and in `<meta name="description">` |
+| `base` | string | `"/"` | URL path the site is served from. A GitHub Pages project site needs `"/repo-name/"`. A missing leading or trailing `/` is added |
+| `locales` | array of strings | `["zh"]` | Languages; the first is the default. With more than one, URLs carry a language prefix: `/zh/n/<id>`, `/en/n/<id>` |
+| `stale_days` | integer | `180` | Notes whose `reviewed` date (or `updated`, if there is none) is older than this get a `stale` notice |
+
+```toml
+title = "My knowledge base"
+description = "Compilers, language models and the papers I have read"
+base = "/kb/"
+locales = ["en", "zh"]
+stale_days = 365
+```
+
+File naming and linking across languages are covered in [[multilingual]].
+
+## site
+
+`[site]` links the site to its repository.
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `repo` | string (URL) | none | Source repository. When set, every page shows an "edit this page" link |
+| `edit_path` | string | `""` | Path of the vault inside the repository, e.g. `"docs/"`; empty when the vault is the repository root |
+
+```toml
+[site]
+repo = "https://github.com/you/kb"
+edit_path = ""
+```
+
+## types
+
+`[types.<name>]` adds a note type or changes a built-in one. Types are merged by name: naming a built-in type overrides only the fields you write.
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `label` | table: language → string | the type name | Display name, one per language |
+| `required` | array of strings | `[]` | Frontmatter fields every note of this type must have; a missing one gives a `required-field` warning |
+
+```toml
+[types.paper]
+label = { zh = "论文", en = "Paper" }
+required = ["summary", "source"]
+
+[types.source]          # built-in type: only change the required fields
+required = ["raw"]
+```
+
+Built-in types and their default folders:
+
+| Type | Chinese | English | Default folder |
+|---|---|---|---|
+| `topic` | 主题 | Topic | `notes/topics/` |
+| `concept` | 概念 | Concept | `notes/concepts/` |
+| `entity` | 实体 | Entity | `notes/entities/` |
+| `source` | 来源 | Source | `notes/sources/` |
+| `question` | 问答 | Question | `notes/questions/` |
+| `journal` | 日志 | Journal | `journal/` |
+| `note` | 笔记 | Note | anywhere else |
+
+A note's type is, in order: `type` in its frontmatter; the `[folders]` mapping; `note`. Why folders hold types rather than topics is explained in [[information-architecture]].
+
+## folders
+
+`[folders]` maps folder prefixes to types, for notes without `type:`. Keys are path prefixes relative to the root and end with `/`; values are type names. Your entries are added on top of the built-in mapping and win on the same key. When a file matches several prefixes, the longest one applies.
+
+```toml
+[folders]
+"notes/papers/" = "paper"
+"guides/" = "guide"
+```
+
+Folders only decide where a file is stored and its default type. Note ids are global, so moving a file to another folder never breaks a link.
+
+## relations
+
+`[[relations]]` is an array of tables, one per relation. Entries are merged with the built-in relations by `name`; a matching name overrides the built-in definition.
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `name` | string | required | Relation name, used in `[[name::id]]` and in frontmatter `rel:` |
+| `inverse` | string | none | Name of the reverse direction, e.g. `used-by`. `[[inverse::id]]` is accepted too |
+| `symmetric` | boolean | `false` | The relation reads the same both ways (like `see-also`); the target uses the same label |
+| `label` | table: language → string | the name | Label shown on the source page |
+| `inverse_label` | table: language → string | the name | Label shown on the target page |
+
+```toml
+[[relations]]
+name = "implements"
+inverse = "implemented-by"
+label = { zh = "实现", en = "implements" }
+inverse_label = { zh = "被实现", en = "implemented by" }
+
+[[relations]]
+name = "alternative-to"
+symmetric = true
+label = { zh = "可替代", en = "alternative to" }
+```
+
+The built-in relations are listed in [[linking]]. An undeclared relation gives an `unknown-relation` warning.
+
+## build
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `ignore` | array of strings | `[]` | Paths not read as notes, added after the default list |
+
+```toml
+[build]
+ignore = ["drafts/private", "**/*.excalidraw.md"]
+```
+
+An entry without `*` matches that path and everything below it; an entry with `*` is a glob. Ignored by default: `.clio`, `.git`, `node_modules`, `.obsidian`, `.trash`, `dist`, `raw`, `templates`, `theme`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `log.md`. Any path containing `node_modules` is ignored as well.
+
+`raw/` is ignored only in the sense that its files are not read as notes: `clio check` still verifies their hashes, and images in it can still be embedded.
+
+## Full example
+
+```toml
+title = "My knowledge base"
+description = "Compilers, language models and the papers I have read"
+base = "/"
+locales = ["en", "zh"]
+stale_days = 180
+
+[site]
+repo = "https://github.com/you/kb"
+edit_path = ""
+
+[types.paper]
+label = { zh = "论文", en = "Paper" }
+required = ["summary"]
+
+[folders]
+"notes/papers/" = "paper"
+
+[[relations]]
+name = "implements"
+inverse = "implemented-by"
+label = { zh = "实现", en = "implements" }
+inverse_label = { zh = "被实现", en = "implemented by" }
+
+[build]
+ignore = ["drafts/private"]
+```
+
+## Theme
+
+`theme/theme.css` is loaded after the default styles and overrides CSS variables. Write only the variables you want to change:
+
+```css title="theme/theme.css"
+:root {
+  --yellow: #c6f432;     /* top bar and selection in neon green */
+  --font-text: "Inter", "PingFang SC", system-ui, sans-serif;
+}
+
+/* dark theme, following the system */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d0f14;
+  }
+}
+
+/* dark theme, chosen by the reader */
+:root[data-theme="dark"] {
+  --paper: #0d0f14;
+}
+```
+
+The dark theme has two triggers — the system preference and the reader's choice in the interface — so a dark override goes in both places, as above. A variable set only in `:root` applies to both themes unless the default styles redefine it for dark mode (as they do for paper, ink, lines and the other neutral colours).
+
+| Variable | Light default | Used for |
+|---|---|---|
+| `--paper` | `#fffaef` | Page background (cream paper) |
+| `--paper-2` | `#fbf1da` | Secondary background: sidebars, table headers, code blocks |
+| `--card` | `#ffffff` | Cards and window bodies |
+| `--ink` | `#141111` | Text, outlines, hard shadows |
+| `--ink-2` | `#3b3534` | Secondary text |
+| `--muted` | `#6b6461` | Metadata, placeholders |
+| `--line` | `#141111` | 2px outlines |
+| `--line-soft` | `#e4dccb` | Dividers, dot grid |
+| `--stone` | `#f1ebdd` | Fill for uncategorised elements |
+| `--on-candy` | `#141111` | Text on candy colours; dark in both themes |
+| `--yellow` | `#ffd440` | Top bar, selected state |
+| `--pink` | `#fe7da8` | Primary action buttons, focus ring |
+| `--cyan` | `#27ccf3` | Type colour |
+| `--lime` | `#a9d877` | Type colour, success |
+| `--lavender` | `#bbafe6` | Type colour |
+| `--orange` | `#f8a16f` | Type colour |
+| `--red` | `#f97264` | Errors |
+| `--highlight` | `#ffe58f` | `==highlight==` and search hits |
+| `--code-link` | `#ece7fb` | Background of links inside inline code |
+| `--shadow-sm` / `--shadow` / `--shadow-lg` | 2 / 4 / 6px offset | Hard shadows |
+| `--dots` / `--grid-dots` | radial gradients | Halftone shadow and background dot grid |
+| `--font-text` | Space Grotesk, falling back to PingFang SC and Noto Sans SC for Chinese | Body text |
+| `--font-mono` | Space Mono | Code and metadata |
+| `--radius-window` | `10px` | Window corner radius |
+| `--topbar-h` | `60px` | Top bar height |
+
+The design decisions behind these variables are in [[design]].
+
+## Plugins
+
+`clio.config.ts` sits in the vault root and default-exports a configuration object. Bun runs TypeScript directly; there is no compile step. Plugins render custom fenced blocks: the engine leaves code blocks, math, Mermaid and charts as placeholders, and at build time Bun hands each placeholder to the first plugin that declares it can handle it. The plugin returns HTML.
+
+```ts title="clio.config.ts types"
+export interface ClioConfig {
+  plugins?: ClioPlugin[];
+}
+
+export interface ClioPlugin {
+  /** Plugin name, shown in error messages */
+  name: string;
+  /** Code block languages this plugin handles, e.g. ["abc"]; omit to match any language */
+  langs?: string[];
+  /** Placeholder kinds it handles: code, math, mermaid, chart; omit for all */
+  kinds?: Array<"code" | "math" | "mermaid" | "chart">;
+  /** Return HTML, or undefined to pass the block on to the next plugin or the built-in renderer */
+  render(block: PluginBlock, ctx: PluginContext): string | undefined | Promise<string | undefined>;
+}
+
+export interface PluginBlock {
+  kind: "code" | "math" | "mermaid" | "chart";
+  /** Language of the code block, e.g. "abc" */
+  lang: string;
+  /** title="…" from the info string */
+  title: string | null;
+  /** Lines to highlight (1-based), from {2,4-6} */
+  highlight: number[];
+  /** Remaining key=value pairs from the info string */
+  attrs: Record<string, unknown>;
+  /** Whether a formula is display math ($$…$$) */
+  display: boolean;
+  /** The block's source text */
+  text: string;
+  /** HTML used when no plugin handles the block */
+  fallback: string;
+  /** Line number in the source file */
+  line: number;
+}
+
+export interface PluginContext {
+  /** Language of the page being built */
+  lang: string;
+  /** The note being built */
+  page: { id: string; title: string; path: string };
+  /** Escape HTML special characters */
+  escape(s: string): string;
+  /** Highlight code with the built-in Shiki setup; returns HTML */
+  highlight(code: string, lang: string): Promise<string>;
+}
+```
+
+An example that renders ```` ```csv ```` blocks as tables:
+
+```ts title="clio.config.ts"
+const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+
+export default {
+  plugins: [
+    {
+      name: "csv-table",
+      langs: ["csv"],
+      render(block) {
+        const [head, ...rows] = block.text.trim().split("\n").map((l) => l.split(","));
+        const cells = (r: string[], tag: string) => r.map((c) => `<${tag}>${esc(c.trim())}</${tag}>`).join("");
+        return `<table><thead><tr>${cells(head, "th")}</tr></thead><tbody>${rows
+          .map((r) => `<tr>${cells(r, "td")}</tr>`)
+          .join("")}</tbody></table>`;
+      },
+    },
+  ],
+};
+```
+
+Plugins run at build time and their output is written into the static HTML, so no plugin code ships to the browser. The built-in Shiki highlighting, KaTeX math and chart rendering take the same path; user plugins come before them.

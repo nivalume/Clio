@@ -1,0 +1,713 @@
+/*
+ * Note content produced by the engine and the build plugins: callouts,
+ * directives, embeds, query results, code figures, math and charts.
+ * Static pages load the same file, so everything here works without the app.
+ */
+
+/* ---------------------------------------------------------------- links */
+
+.prose a.wl {
+  text-decoration: none;
+  border-bottom: 2px solid var(--pink);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.prose a.wl:hover {
+  background: var(--highlight);
+}
+
+.prose a.wl[data-rel]::before {
+  content: attr(data-rel) " ";
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.prose a.wl.wanted {
+  border-bottom: 2px dashed var(--muted);
+  color: var(--muted);
+}
+
+.prose a.tag {
+  border-bottom: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  font-weight: 400;
+  text-decoration: none;
+  vertical-align: 1px;
+}
+
+.block-anchor {
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
+}
+
+.block-anchor:target + *,
+p:has(> .block-anchor:target),
+li:has(> .block-anchor:target) {
+  background: var(--highlight);
+}
+
+/* ---------------------------------------------------------------- callouts */
+
+.callout {
+  --callout: var(--lavender);
+  margin: 0 0 18px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.callout[data-callout="note"],
+.callout[data-callout="info"],
+.callout[data-callout="abstract"],
+.callout[data-callout="summary"] {
+  --callout: var(--cyan);
+}
+
+.callout[data-callout="tip"],
+.callout[data-callout="hint"],
+.callout[data-callout="success"],
+.callout[data-callout="check"],
+.callout[data-callout="done"] {
+  --callout: var(--lime);
+}
+
+.callout[data-callout="important"],
+.callout[data-callout="question"],
+.callout[data-callout="faq"],
+.callout[data-callout="example"] {
+  --callout: var(--lavender);
+}
+
+.callout[data-callout="warning"],
+.callout[data-callout="caution"],
+.callout[data-callout="attention"] {
+  --callout: var(--yellow);
+}
+
+.callout[data-callout="danger"],
+.callout[data-callout="error"],
+.callout[data-callout="failure"],
+.callout[data-callout="bug"] {
+  --callout: var(--red);
+}
+
+.callout[data-callout="quote"],
+.callout[data-callout="cite"] {
+  --callout: var(--stone);
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--callout);
+  color: var(--on-candy);
+  border-bottom: 2px solid #141111;
+  font-weight: 700;
+  font-size: 14px;
+  list-style: none;
+}
+
+details.callout:not([open]) > .callout-title {
+  border-bottom: 0;
+}
+
+.callout-title::-webkit-details-marker {
+  display: none;
+}
+
+details.callout > .callout-title {
+  cursor: pointer;
+}
+
+details.callout > .callout-title::after {
+  content: "+";
+  margin-left: auto;
+  font-family: var(--font-mono);
+}
+
+details.callout[open] > .callout-title::after {
+  content: "−";
+}
+
+.callout-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 2px solid #141111;
+  background: var(--card);
+}
+
+.callout[data-callout="warning"] .callout-icon,
+.callout[data-callout="danger"] .callout-icon,
+.callout[data-callout="caution"] .callout-icon {
+  transform: rotate(45deg) scale(0.85);
+}
+
+.callout[data-callout="tip"] .callout-icon,
+.callout[data-callout="success"] .callout-icon {
+  border-radius: 50%;
+}
+
+.callout-body {
+  padding: 12px 16px 2px;
+}
+
+.callout-body > :last-child {
+  margin-bottom: 12px;
+}
+
+/* ---------------------------------------------------------------- directives */
+
+.directive {
+  margin: 0 0 20px;
+}
+
+.directive-title,
+.card-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.directive-tabs {
+  border: 2px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--line);
+  background: var(--paper-2);
+}
+
+.tab-button {
+  padding: 6px 14px;
+  border: 0;
+  border-right: 2px solid var(--line);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tab-button[aria-selected="true"] {
+  background: var(--yellow);
+  color: var(--on-candy);
+}
+
+.directive-tab {
+  margin: 0;
+  padding: 14px 16px 2px;
+}
+
+.directive-tab > :last-child {
+  margin-bottom: 14px;
+}
+
+/* Without the script, every panel shows with its title. */
+.directive-tabs:not([data-ready]) > .tabs-bar {
+  display: none;
+}
+
+.directive-tabs:not([data-ready]) > .directive-tab::before {
+  content: attr(data-title);
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.directive-tabs:not([data-ready]) > .directive-tab + .directive-tab {
+  border-top: 2px dashed var(--line-soft);
+}
+
+.directive-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.directive-card {
+  margin: 0;
+  padding: 14px 16px 2px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.directive-card > :last-child {
+  margin-bottom: 12px;
+}
+
+.directive-steps {
+  counter-reset: step;
+  padding-left: 0;
+}
+
+.directive-steps > ol {
+  list-style: none;
+  padding: 0;
+}
+
+.directive-steps > ol > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 14px 44px;
+  border-left: 2px solid var(--line);
+  margin-left: 14px;
+}
+
+.directive-steps > ol > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -15px;
+  top: -2px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #141111;
+  background: var(--yellow);
+  color: var(--on-candy);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.directive-steps > ol > li:last-child {
+  border-left-color: transparent;
+}
+
+.directive-steps > :is(h2, h3, h4) {
+  margin-top: 0;
+}
+
+.directive-details {
+  border: 2px solid var(--line);
+  background: var(--card);
+  padding: 0 16px;
+}
+
+.directive-details > summary {
+  margin: 0 -16px;
+  padding: 7px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.directive-details[open] > summary {
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 12px;
+}
+
+.directive-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+
+.directive-column > :last-child {
+  margin-bottom: 0;
+}
+
+.directive-unknown,
+[class*="directive-unknown"] {
+  padding: 10px 14px 1px;
+  border: 2px dashed var(--line-soft);
+}
+
+/* ---------------------------------------------------------------- embeds */
+
+.embed {
+  margin: 0 0 20px;
+  border: 2px solid var(--line);
+  border-left-width: 8px;
+  border-left-color: var(--cyan);
+  background: var(--card);
+}
+
+.embed-head {
+  padding: 5px 12px;
+  border-bottom: 2px dashed var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.embed-head a {
+  border-bottom: 0 !important;
+}
+
+.embed-body {
+  padding: 12px 16px 2px;
+}
+
+.embed-body > :last-child,
+.embed-note {
+  margin-bottom: 12px;
+}
+
+.embed-note {
+  padding: 0 16px;
+}
+
+.embed-block blockquote {
+  margin: 10px 14px;
+  box-shadow: none;
+}
+
+.embed-missing {
+  padding: 8px 12px;
+  border-style: dashed;
+  border-left-color: var(--muted);
+  color: var(--muted);
+}
+
+.embed-image {
+  margin: 0 0 20px;
+}
+
+.embed-image img,
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid var(--line);
+}
+
+/* ---------------------------------------------------------------- queries */
+
+.query-list {
+  padding: 0;
+  list-style: none;
+  margin: 0 0 20px;
+  border: 2px solid var(--line);
+  background: var(--card);
+}
+
+.prose .query-list > li {
+  margin: 0;
+  padding: 7px 12px 7px 14px;
+  border-bottom: 1.5px dashed var(--line-soft);
+}
+
+.prose .query-list > li::before {
+  display: none;
+}
+
+.prose .query-list > li:last-child {
+  border-bottom: 0;
+}
+
+.query-summary {
+  color: var(--muted);
+  font-size: 0.92em;
+}
+
+.query-summary::before {
+  content: "— ";
+}
+
+.query-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 0 0 20px;
+}
+
+.query-card {
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.query-card p {
+  margin: 6px 0 0;
+  font-size: 0.9em;
+  color: var(--ink-2);
+}
+
+.query-empty,
+.query-error {
+  padding: 8px 12px;
+  border: 2px dashed var(--line-soft);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.query-error {
+  border-color: var(--red);
+}
+
+/* ---------------------------------------------------------------- code */
+
+figure.code {
+  position: relative;
+  margin: 0 0 20px;
+  border: 2px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+figure.code > figcaption,
+.code__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 4px 76px 4px 12px;
+  border-bottom: 2px solid var(--line);
+  background: var(--card);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+.code__lang {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+figure.code pre {
+  margin: 0;
+  padding: 14px 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: transparent !important;
+}
+
+figure.code pre > code {
+  display: block;
+  min-width: max-content;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+}
+
+figure.code pre:not(.shiki) > code,
+figure.code .line {
+  padding: 0 16px;
+}
+
+figure.code .line {
+  display: inline-block;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+figure.code .line.highlighted {
+  background: var(--highlight);
+  box-shadow: inset 4px 0 0 var(--pink);
+}
+
+figure.code .line.diff.add {
+  background: color-mix(in srgb, var(--lime) 30%, transparent);
+}
+
+figure.code .line.diff.remove {
+  background: color-mix(in srgb, var(--red) 25%, transparent);
+}
+
+.code-copy {
+  position: absolute;
+  z-index: 1;
+  top: 4px;
+  right: 8px;
+  padding: 0 7px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+figure.code:not(:has(> figcaption)) .code-copy {
+  opacity: 0;
+}
+
+figure.code:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+
+/* Shiki dual themes: light colours by default, dark ones under the dark theme. */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+}
+
+:root[data-theme="dark"] .shiki,
+:root[data-theme="dark"] .shiki span {
+  color: var(--shiki-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .shiki,
+  :root:where(:not([data-theme="light"])) .shiki span {
+    color: var(--shiki-dark);
+  }
+}
+
+/* ---------------------------------------------------------------- math and charts */
+
+.math-display {
+  margin: 0 0 20px;
+  padding: 6px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+}
+
+span.math-display {
+  display: block;
+}
+
+.math-inline .katex {
+  font-size: 1.05em;
+}
+
+pre.chart-source,
+pre.mermaid {
+  padding: 12px 14px;
+  border: 2px dashed var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+
+pre.mermaid-error {
+  border-color: var(--red);
+}
+
+.chart {
+  margin: 0 0 20px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart > figcaption {
+  padding: 6px 12px;
+  border-bottom: 2px solid var(--line);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-text);
+}
+
+.chart .chart-axis {
+  stroke: var(--line-soft);
+}
+
+.chart .chart-grid {
+  stroke: var(--line-soft);
+  stroke-dasharray: 2 3;
+}
+
+.chart text {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.chart .chart-value {
+  fill: var(--ink);
+  font-weight: 700;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 6px 12px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend i {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid #141111;
+}
+
+.chart-table {
+  padding: 0 12px 10px;
+}
+
+.chart-table summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- link preview card */
+
+.link-preview {
+  position: absolute;
+  z-index: 80;
+  width: 320px;
+  padding: 10px 12px;
+  border: 2px solid #141111;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.link-preview strong {
+  display: block;
+  font-size: 14px;
+}
+
+.link-preview__meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.link-preview p {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* Task lists: comrak emits a bare checkbox as the first child. */
+.prose ul > li:has(> input[type="checkbox"]) {
+  padding-left: 0;
+}
+
+.prose ul > li:has(> input[type="checkbox"])::before {
+  display: none;
+}
+
+.prose li > input[type="checkbox"] {
+  margin: 0 8px 0 0;
+  vertical-align: -1px;
+  accent-color: var(--ink);
+}

@@ -131,6 +131,14 @@ function mergeByName<T extends { name: string }>(base: T[], extra: T[]): T[] {
   return out;
 }
 
+/** `kb` → `/kb/`; the site's URL path always starts and ends with a slash. */
+export function normaliseBase(base: string): string {
+  let b = base.trim() || "/";
+  if (!b.startsWith("/")) b = `/${b}`;
+  if (!b.endsWith("/")) b = `${b}/`;
+  return b;
+}
+
 export async function loadSettings(root: string): Promise<Settings> {
   const file = `${root}/clio.toml`;
   const exists = await Bun.file(file).exists();
@@ -138,9 +146,7 @@ export async function loadSettings(root: string): Promise<Settings> {
 
   const types: TypeDef[] = Object.entries((raw.types ?? {}) as Record<string, Partial<TypeDef>>).map(([name, t]) => ({ ...t, name }));
   const relations = Array.isArray(raw.relations) ? (raw.relations as RelationDef[]) : [];
-  let base = String(raw.base ?? "/");
-  if (!base.startsWith("/")) base = `/${base}`;
-  if (!base.endsWith("/")) base = `${base}/`;
+  const base = normaliseBase(String(raw.base ?? "/"));
   const locales = Array.isArray(raw.locales) && raw.locales.length ? raw.locales.map(String) : ["zh"];
 
   const engine: EngineConfig = {
