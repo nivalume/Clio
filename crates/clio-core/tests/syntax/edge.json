@@ -1,0 +1,78 @@
+{
+  "id": "edge",
+  "title": "边界情况",
+  "type": "concept",
+  "lang": "zh",
+  "aliases": [],
+  "tags": [
+    "标签在行首"
+  ],
+  "summary": "加粗，紧跟中文标点。斜体：也一样。高亮",
+  "links": [
+    {
+      "target": "",
+      "rel": null,
+      "heading": "本页小节",
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 20,
+      "context": "空链接，本页小节 本页链接。"
+    },
+    {
+      "target": "note-in-footnote",
+      "rel": null,
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 10,
+      "context": "脚注内容，含 note-in-footnote。"
+    }
+  ],
+  "headings": [
+    {
+      "depth": 1,
+      "text": "边界情况",
+      "slug": "边界情况",
+      "line": 4
+    }
+  ],
+  "blocks": [],
+  "plugins": [
+    {
+      "kind": "code",
+      "lang": "text",
+      "title": null,
+      "highlight": [],
+      "attrs": {},
+      "display": true,
+      "text": ":::\n围栏里的 ::: 不算\n",
+      "fallback": "<figure class=\"code\"><pre><code class=\"language-text\">:::\n围栏里的 ::: 不算\n</code></pre></figure>",
+      "line": 26
+    }
+  ],
+  "queries": [],
+  "assets": [],
+  "words": 73,
+  "diags": [
+    {
+      "level": "error",
+      "line": 1,
+      "code": "frontmatter",
+      "message": "invalid YAML: line 1 column 8: unclosed bracket '['"
+    },
+    {
+      "level": "warning",
+      "line": 20,
+      "code": "empty-link",
+      "message": "empty [[ ]] link"
+    },
+    {
+      "level": "info",
+      "line": 31,
+      "code": "callout-type",
+      "message": "custom callout type `custom-kind`"
+    }
+  ]
+}

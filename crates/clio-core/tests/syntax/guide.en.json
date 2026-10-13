@@ -1,0 +1,30 @@
+{
+  "id": "guide",
+  "title": "guide",
+  "type": "concept",
+  "lang": "en",
+  "aliases": [],
+  "tags": [
+    "tag"
+  ],
+  "summary": "English translation with a typed-links link and a #tag.",
+  "links": [
+    {
+      "target": "typed-links",
+      "rel": null,
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 6,
+      "context": "English translation with a typed-links link and a #tag."
+    }
+  ],
+  "headings": [],
+  "blocks": [],
+  "plugins": [],
+  "queries": [],
+  "assets": [],
+  "words": 10,
+  "diags": []
+}

@@ -1,30 +1,19 @@
-//! Clio engine core. P0 skeleton: Markdown → HTML with Clio's comrak options.
+//! Clio engine core: parses Clio Markdown, resolves links across a vault,
+//! builds the knowledge graph and the site's data files. Deterministic and
+//! free of I/O, so the same code runs natively and as WebAssembly.
 
-use comrak::{markdown_to_html, Options};
+pub mod api;
+pub mod config;
+pub mod frontmatter;
+pub mod markers;
+pub mod note;
+pub mod render;
+pub mod text;
+
+pub use api::Engine;
+pub use config::Config;
+pub use note::{parse_note, Note};
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
-}
-
-pub fn comrak_options() -> Options<'static> {
-    let mut o = Options::default();
-    let e = &mut o.extension;
-    e.strikethrough = true;
-    e.table = true;
-    e.autolink = true;
-    e.tasklist = true;
-    e.footnotes = true;
-    e.description_lists = true;
-    e.front_matter_delimiter = Some("---".into());
-    e.math_dollars = true;
-    e.wikilinks_title_after_pipe = true;
-    e.cjk_friendly_emphasis = true;
-    e.highlight = true;
-    e.block_directive = true;
-    o.render.r#unsafe = false;
-    o
-}
-
-pub fn render(md: &str) -> String {
-    markdown_to_html(md, &comrak_options())
 }

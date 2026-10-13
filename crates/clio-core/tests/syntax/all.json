@@ -1,0 +1,216 @@
+{
+  "id": "all",
+  "title": "Pratt 解析器",
+  "type": "concept",
+  "lang": "zh",
+  "aliases": [
+    "pratt",
+    "优先级爬升"
+  ],
+  "tags": [
+    "compilers",
+    "parser",
+    "parsing",
+    "编译/前端"
+  ],
+  "summary": "优先级爬升的最小实现，见 recursive-descent 与 递归下降。 它 tokenizer，反驳了 parser-generators-are-faster。#parsing #2024 #编译/前端",
+  "links": [
+    {
+      "target": "expr-engine",
+      "rel": "part-of",
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "frontmatter",
+      "line": 1,
+      "context": ""
+    },
+    {
+      "target": "tokenizer",
+      "rel": "depends-on",
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "frontmatter",
+      "line": 1,
+      "context": ""
+    },
+    {
+      "target": "lexer",
+      "rel": "depends-on",
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "frontmatter",
+      "line": 1,
+      "context": ""
+    },
+    {
+      "target": "operator-table",
+      "rel": null,
+      "heading": "优先级",
+      "block": null,
+      "label": null,
+      "origin": "embed",
+      "line": 20,
+      "context": ""
+    },
+    {
+      "target": "recursive-descent",
+      "rel": null,
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 13,
+      "context": "优先级爬升的最小实现，见 recursive-descent 与 递归下降。 它 tokenizer，反驳了 parser-generators-are-faster。#parsing #2024 #编译/前端"
+    },
+    {
+      "target": "recursive-descent",
+      "rel": null,
+      "heading": null,
+      "block": null,
+      "label": "递归下降",
+      "origin": "wiki",
+      "line": 13,
+      "context": "优先级爬升的最小实现，见 recursive-descent 与 递归下降。 它 tokenizer，反驳了 parser-generators-are-faster。#parsing #2024 #编译/前端"
+    },
+    {
+      "target": "tokenizer",
+      "rel": "depends-on",
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 14,
+      "context": "优先级爬升的最小实现，见 recursive-descent 与 递归下降。 它 tokenizer，反驳了 parser-generators-are-faster。#parsing #2024 #编译/前端"
+    },
+    {
+      "target": "parser-generators-are-faster",
+      "rel": "contradicts",
+      "heading": "基准",
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 14,
+      "context": "优先级爬升的最小实现，见 recursive-descent 与 递归下降。 它 tokenizer，反驳了 parser-generators-are-faster。#parsing #2024 #编译/前端"
+    },
+    {
+      "target": "benchmarks",
+      "rel": null,
+      "heading": null,
+      "block": "run-3",
+      "label": null,
+      "origin": "wiki",
+      "line": 16,
+      "context": "这条结论被 benchmarks 支持。"
+    },
+    {
+      "target": "notes/topics/compilers",
+      "rel": null,
+      "heading": "历史",
+      "block": null,
+      "label": "标准链接",
+      "origin": "markdown",
+      "line": 18,
+      "context": "见 标准链接 和 外部。"
+    },
+    {
+      "target": "table-link",
+      "rel": null,
+      "heading": null,
+      "block": null,
+      "label": null,
+      "origin": "wiki",
+      "line": 75,
+      "context": "见 table-link"
+    }
+  ],
+  "headings": [
+    {
+      "depth": 1,
+      "text": "Pratt 解析器",
+      "slug": "pratt-解析器",
+      "line": 11
+    }
+  ],
+  "blocks": [
+    {
+      "id": "claim-1",
+      "text": "这条结论被 benchmarks 支持。",
+      "line": 16
+    },
+    {
+      "id": "item-a",
+      "text": "列表项",
+      "line": 70
+    }
+  ],
+  "plugins": [
+    {
+      "kind": "code",
+      "lang": "rust",
+      "title": "src/parse.rs",
+      "highlight": [
+        2
+      ],
+      "attrs": {},
+      "display": true,
+      "text": "fn main() {\n    println!(\"hi\");\n}\n",
+      "fallback": "<figure class=\"code\"><figcaption>src/parse.rs</figcaption><pre><code class=\"language-rust\">fn main() {\n    println!(&quot;hi&quot;);\n}\n</code></pre></figure>",
+      "line": 35
+    },
+    {
+      "kind": "mermaid",
+      "lang": "mermaid",
+      "title": null,
+      "highlight": [],
+      "attrs": {},
+      "display": true,
+      "text": "graph LR; A-->B\n",
+      "fallback": "<pre class=\"mermaid\">graph LR; A--&gt;B\n</pre>",
+      "line": 58
+    },
+    {
+      "kind": "math",
+      "lang": "tex",
+      "title": null,
+      "highlight": [],
+      "attrs": {},
+      "display": false,
+      "text": "a^2+b^2=c^2",
+      "fallback": "<span class=\"math math-inline\">a^2+b^2=c^2</span>",
+      "line": 42
+    },
+    {
+      "kind": "math",
+      "lang": "tex",
+      "title": null,
+      "highlight": [],
+      "attrs": {},
+      "display": true,
+      "text": "\n\\int_0^1 x\\,dx\n",
+      "fallback": "<span class=\"math math-display\">\n\\int_0^1 x\\,dx\n</span>",
+      "line": 62
+    }
+  ],
+  "queries": [
+    {
+      "source": "type = concept AND tag = parser\n",
+      "line": 66
+    }
+  ],
+  "assets": [
+    "assets/a.png",
+    "diagram.png"
+  ],
+  "words": 145,
+  "diags": [
+    {
+      "level": "warning",
+      "line": 54,
+      "code": "unknown-directive",
+      "message": "unknown directive `:::unknown-thing`; it renders as a plain block"
+    }
+  ]
+}
