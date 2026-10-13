@@ -164,7 +164,7 @@ export async function newSite(args: Args): Promise<number> {
     `  ${top.filter((f) => statSync(join(dir, f)).isFile()).join("  ")}`,
     `  ${top.filter((f) => statSync(join(dir, f)).isDirectory() && !f.startsWith(".")).map((f) => `${f}/`).join("  ")}${templates ? `  (templates: ${templates})` : ""}`,
     `  agent skill: ${skill.join(", ")}`,
-    `next: cd ${relative(process.cwd(), dir) || "."} && bun install && bunx clio dev`,
+    `next: cd ${relative(process.cwd(), dir) || "."} && bun install && bun run dev`,
   );
   return 0;
 }

@@ -4,9 +4,9 @@
 
 ```bash
 bun install          # 安装 Clio（需要 Bun 1.2 或更高版本）
-bunx clio dev        # 本地预览，改动后自动刷新：http://localhost:4321
-bunx clio check      # 检查链接和格式
-bunx clio build      # 生成静态网站到 .clio/site
+bun run dev          # 本地预览，改动后自动刷新：http://localhost:4321
+bun run check        # 检查链接和格式
+bun run build        # 生成静态网站到 .clio/site
 ```
 
 - 写笔记：`bunx clio new concept "标题"`，或直接在对应目录里新建 Markdown 文件。

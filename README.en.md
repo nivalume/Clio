@@ -24,10 +24,10 @@ AI agents maintain the same vault through a command line and an agent skill.
 You need [Bun](https://bun.sh) 1.2 or later. No Rust: the engine ships as a `.wasm` file.
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio new site my-kb --locales en      # starters: llm-wiki (default), docs, blank
 cd my-kb && bun install
-bunx clio dev                         # http://localhost:4321
+bun run dev                           # http://localhost:4321
 ```
 
 A new project comes with `AGENTS.md`, the agent skill (`skills/clio`, linked into `.claude/skills` and

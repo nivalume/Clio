@@ -15,10 +15,10 @@
 需要 [Bun](https://bun.sh) 1.2 或更高版本。不需要 Rust：引擎以 `.wasm` 随包发布。
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio new site my-kb            # 起步模板：llm-wiki（默认）、docs、blank
 cd my-kb && bun install
-bunx clio dev                  # http://localhost:4321
+bun run dev                    # http://localhost:4321
 ```
 
 生成的项目带有 `AGENTS.md`、Agent Skill（`skills/clio`，并链接到 `.claude/skills` 和 `.agents/skills`）、`vercel.json` 和 GitHub Pages 工作流。
