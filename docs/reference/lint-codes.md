@@ -27,7 +27,7 @@ updated: 2026-10-13
 |---|---|---|
 | [[#frontmatter]] | 错误 | frontmatter 不是合法的 YAML |
 | [[#duplicate-id]] | 错误 | 两个文件在同一种语言下用了同一个 id |
-| [[#raw-modified]] | 错误 | `raw/` 里的文件在收录后被改过 |
+| [[#raw-modified]] | 错误 | `raw/` 里的文件在收录后被改过或删除 |
 | [[#wanted]] | 警告 | 链接到不存在的笔记 |
 | [[#missing-anchor]] | 警告 | 链接的章节或块在目标笔记里不存在 |
 | [[#ambiguous-link]] | 警告 | 别名或标题匹配到多篇笔记 |
@@ -73,7 +73,9 @@ notes/sources/attention.md       → id attention
 
 ### raw-modified
 
-`raw/` 里的原始资料在收录之后被修改了：它当前的 sha256 与来源笔记 frontmatter 里记录的 `sha256` 不一致。原始资料是只读的，来源笔记和引用它的结论都以收录时的内容为准。
+`raw/` 里的原始资料在收录之后被修改了：它当前的 sha256 与来源笔记 frontmatter 里记录的 `sha256` 不一致。`raw:` 指向的文件不存在时也报告这个错误。原始资料是只读的，来源笔记和引用它的结论都以收录时的内容为准。
+
+只有同时写了 `raw:` 和 `sha256:` 的笔记才做这项检查。它由 Bun 命令行完成，不在引擎里：引擎不读文件系统，命令行读取 `raw/` 里的文件计算哈希。`clio check`、`clio build` 和 `clio mcp` 的 `check` 工具都包含这项检查。
 
 ```yaml
 # notes/sources/attention-is-all-you-need.md
@@ -81,7 +83,7 @@ raw: raw/attention-is-all-you-need.pdf
 sha256: 3f2a9c…e81b      # 文件现在的哈希不是这个
 ```
 
-修法：如果修改是误操作，从版本库恢复原文件。如果确实需要新版本，用 [[cli#clio ingest]] 把新文件作为一份新资料收录，再更新引用它的笔记。
+修法：如果修改或删除是误操作，从版本库恢复原文件。如果确实需要新版本，用 [[cli#clio ingest]] 把新文件作为一份新资料收录，再更新引用它的笔记。
 
 ## 警告
 

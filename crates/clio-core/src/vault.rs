@@ -70,6 +70,8 @@ pub struct Vault {
     pub clusters: Vec<Cluster>,
     pub diags: Vec<PathDiag>,
     pub search: search::Index,
+    /// Graph positions (notes, then ghosts), once the `layout` command has run.
+    pub layout: Option<Vec<(f64, f64)>>,
 }
 
 fn lang_order(cfg: &Config, lang: &str) -> usize {
@@ -253,6 +255,15 @@ impl Vault {
         for (i, &c) in cluster.iter().enumerate() {
             members[c as usize].push(i as u32);
         }
+        // Label each cluster by a tag that is common in it and rare elsewhere, else by its
+        // top-ranked note; labels are unique (larger clusters choose first).
+        let mut tag_total: BTreeMap<&str, u32> = BTreeMap::new();
+        for p in &primary {
+            for t in &notes[p].tags {
+                *tag_total.entry(t.as_str()).or_default() += 1;
+            }
+        }
+        let mut used: BTreeSet<String> = BTreeSet::new();
         let clusters: Vec<Cluster> = members
             .into_iter()
             .enumerate()
@@ -269,16 +280,25 @@ impl Vault {
                         *tag_count.entry(t.as_str()).or_default() += 1;
                     }
                 }
-                let best_tag = tag_count
+                // Score: members with the tag × share of the tag's notes that are in this cluster.
+                let mut tags: Vec<(&str, u32, u32)> = tag_count
                     .iter()
-                    .filter(|(_, c)| **c >= 2)
-                    .max_by(|a, b| a.1.cmp(b.1).then(b.0.cmp(a.0)))
-                    .map(|(t, _)| format!("#{t}"));
-                let label = best_tag.unwrap_or_else(|| {
-                    m.first()
-                        .map(|x| notes[&primary[*x as usize]].title.clone())
-                        .unwrap_or_default()
+                    .filter(|(_, n)| **n >= 2)
+                    .map(|(t, n)| (*t, *n, tag_total[t]))
+                    .filter(|(_, n, total)| n * 2 >= *total)
+                    .collect();
+                tags.sort_by(|a, b| {
+                    let sa = a.1 as u64 * a.1 as u64 * b.2 as u64;
+                    let sb = b.1 as u64 * b.1 as u64 * a.2 as u64;
+                    sb.cmp(&sa).then(a.0.cmp(b.0))
                 });
+                let label = tags
+                    .iter()
+                    .map(|(t, _, _)| format!("#{t}"))
+                    .chain(m.iter().map(|x| notes[&primary[*x as usize]].title.clone()))
+                    .find(|l| !l.is_empty() && !used.contains(l))
+                    .unwrap_or_else(|| format!("{} {}", m.len(), c + 1));
+                used.insert(label.clone());
                 Cluster {
                     id: c as u32,
                     label,
@@ -326,6 +346,7 @@ impl Vault {
             clusters,
             diags,
             search,
+            layout: None,
         }
     }
 

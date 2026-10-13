@@ -5,7 +5,7 @@ tags: [overview]
 rel:
   see-also: [getting-started, architecture]
 updated: 2026-10-13
-translation-of-hash: "5db6959dfc05"
+translation-of-hash: "7a6af2e46521"
 ---
 # Clio
 
@@ -24,9 +24,9 @@ Clio is a knowledge-base system that people and AI agents maintain together. You
 You need Bun 1.2 or later.
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio new site my-kb
-clio dev --dir my-kb
+cd my-kb && bun install && bun run dev
 ```
 
 Open `http://localhost:4321`. Continue with [[getting-started]].

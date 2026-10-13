@@ -20,8 +20,8 @@ export function jsonScript(v: unknown): string {
 }
 
 const UI = {
-  zh: { home: "首页", explore: "浏览", graph: "图谱", tags: "标签", health: "健康", relations: "关系", backlinks: "链接到这里", hubs: "枢纽", recent: "最近更新", notes: "篇笔记", noscript: "这个视图需要 JavaScript；笔记页面不需要。", notFound: "找不到这个页面", tagged: "带有标签" },
-  en: { home: "Home", explore: "Explore", graph: "Graph", tags: "Tags", health: "Health", relations: "Relations", backlinks: "Linked from", hubs: "Hubs", recent: "Recently updated", notes: "notes", noscript: "This view needs JavaScript; note pages do not.", notFound: "Page not found", tagged: "Tagged" },
+  zh: { home: "首页", explore: "浏览", graph: "图谱", tags: "标签", health: "健康", relations: "关系", backlinks: "链接到这里", hubs: "枢纽", recent: "最近更新", notes: "篇笔记", noscript: "这个视图需要 JavaScript；笔记页面不需要。", notFound: "找不到这个页面", tagged: "带有标签", wanted: "待写" },
+  en: { home: "Home", explore: "Explore", graph: "Graph", tags: "Tags", health: "Health", relations: "Relations", backlinks: "Linked from", hubs: "Hubs", recent: "Recently updated", notes: "notes", noscript: "This view needs JavaScript; note pages do not.", notFound: "Page not found", tagged: "Tagged", wanted: "Wanted" },
 };
 
 export function ui(lang: string) {

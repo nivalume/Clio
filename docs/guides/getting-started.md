@@ -31,11 +31,11 @@ curl -fsSL https://bun.sh/install | bash
 ### 安装 Clio
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio --version
 ```
 
-目前直接从 GitHub 安装，npm 发布在计划中。
+目前直接从 GitHub 安装，`#v0.1.0` 指定版本。npm 发布在计划中。
 
 ### 新建知识库
 
@@ -45,9 +45,11 @@ cd my-kb
 bun install
 ```
 
-`clio new site` 生成配置、目录、模板、主题、部署文件和 Agent Skill。默认的起步模板是 `llm-wiki`，适合个人或团队知识库；做文档站用 `--starter docs`，只要配置和首页用 `--starter blank`。要中英双语，加 `--locales zh,en`。
+`clio new site` 生成配置、目录、模板、主题、部署文件、Agent Skill 和一组示例笔记。默认的起步模板是 `llm-wiki`，适合个人或团队知识库；做文档站用 `--starter docs`，只要配置和首页用 `--starter blank`。要中英双语，加 `--locales zh,en`。
 
-`bun install` 把 Clio 装进项目本身：生成的 `package.json` 依赖 `"clio": "github:nivalume/Clio"`。项目因此固定了自己的 Clio 版本，部署平台构建时用的也是这一版，和你全局安装的版本无关。
+`bun install` 把 Clio 装进项目本身：生成的 `package.json` 依赖 `"clio": "github:nivalume/Clio#v0.1.0"`。项目因此固定了自己的 Clio 版本，部署平台构建时用的也是这一版，和你全局安装的版本无关。
+
+`package.json` 里有 `dev`、`build`、`check`、`serve` 四个脚本，`bun run dev` 就是用项目里的 Clio 运行 `clio dev`。在项目目录里用 `bunx clio …` 也可以。不要在没有安装 Clio 的目录里用 `bunx clio`：npm 上有一个无关的同名包 `clio`，`bunx` 会下载并运行它。
 
 ### 认识目录
 
@@ -59,19 +61,25 @@ my-kb/
   log.md           操作日志，只追加
   raw/             原始资料，只读
   notes/           笔记：sources/ concepts/ entities/ topics/ questions/
+  journal/         可选的日记
   templates/       每种笔记类型一个模板
   theme/           theme.css，覆盖颜色和字体
+  skills/clio/     Agent Skill
+  package.json     依赖 clio，定义 dev、build、check、serve 脚本
+  vercel.json      Vercel 部署配置
 ```
 
 `notes/` 下的子目录决定笔记的默认类型，不代表主题。每个目录的用途和这样设计的原因见 [[vault-layout]]。
 
+`notes/` 和 `raw/` 里已经有一个示例：一份原始资料，以及从它整理出的来源、概念、实体、主题和问答笔记，`log.md` 里记着这几步操作。读一遍就能看到一个知识库是怎么连起来的。不需要时可以删掉。
+
 ### 启动预览
 
 ```bash
-clio dev
+bun run dev
 ```
 
-浏览器打开 `http://localhost:4321`。`clio dev` 先构建一次，然后监视文件，保存任何笔记后自动重建并刷新浏览器。端口被占用时加 `--port 8080`。
+浏览器打开 `http://localhost:4321`。`bun run dev` 运行 `clio dev`：先构建一次，然后监视文件，保存任何笔记后自动重建并刷新浏览器。端口被占用时用 `bun run dev --port 8080`。
 
 ### 写第一篇笔记
 
@@ -107,26 +115,28 @@ $ clio check
 notes/concepts/vector-search.md
   12   warning wanted                link to missing note `bm25`
   14   warning wanted                link to missing note `embedding`
+notes/topics/note-taking.md
+  18   warning wanted                link to missing note `spaced-repetition`
 
-2 notes · 2 files · 2 links · 2 wanted · 0 errors · 2 warnings · 1 notices
+8 notes · 8 files · 29 links · 3 wanted · 0 errors · 3 warnings · 1 notices
 ```
 
-每行依次是行号、级别、检查码和说明。`wanted` 表示链接到了还不存在的笔记，它是警告，不是错误：先写链接、后写笔记是正常的工作方式。这些待写笔记会出现在网站的「待写」列表里，在图谱中显示为幽灵节点。
+每行依次是行号、级别、检查码和说明。`wanted` 表示链接到了还不存在的笔记，它是警告，不是错误：先写链接、后写笔记是正常的工作方式。第三条来自示例笔记，`spaced-repetition` 是有意留下的待写链接。这些待写笔记会出现在网站的「待写」列表里，在图谱中显示为幽灵节点。
 
 只有错误（例如 frontmatter 不是合法的 YAML）会让 `clio check` 以退出码 1 结束。加 `--all` 还会显示提示级别的问题，例如没有任何笔记链接到的孤立笔记。全部检查码见 [[lint-codes]]。
 
 ### 构建
 
 ```bash
-clio build
-clio serve
+bun run build
+bun run serve
 ```
 
-`clio build` 把网站写到 `.clio/site`：每篇笔记一个静态 HTML 页面，加上前端应用、搜索索引和给语言模型读的 `llms.txt`。`clio serve` 在本地提供这个目录，用来检查准备部署的结果。
+`bun run build` 运行 `clio build`，把网站写到 `.clio/site`：每篇笔记一个静态 HTML 页面，加上前端应用、搜索索引和给语言模型读的 `llms.txt`。`bun run serve` 运行 `clio serve`，在本地提供这个目录，用来检查准备部署的结果。
 
 ### 部署
 
-把项目推到 GitHub，在 Vercel 导入这个仓库。项目里已经有 `vercel.json`，不需要改任何设置，之后每次推送都会自动部署。用 GitHub Pages 或其他静态托管的步骤见 [[deploy]]。
+把项目推到 GitHub，在 Vercel 导入这个仓库。项目里已经有 `vercel.json`，它先运行 `bun run check`，再运行 `bun run build`，不需要改任何设置，之后每次推送都会自动部署。项目里也已经有 GitHub Pages 的工作流。用 GitHub Pages 或其他静态托管的步骤见 [[deploy]]。
 :::
 
 ## 下一步

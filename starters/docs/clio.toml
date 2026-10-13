@@ -1,7 +1,7 @@
 # A documentation site built with Clio. Every key: https://clio-one.vercel.app/en/n/config
 title = __TITLE_TOML__
 description = ""
-base = "/"                  # URL path of the site, e.g. "/docs/" for a GitHub Pages project site
+base = "/"                  # URL path of the site; the GitHub Pages workflow passes its own with --base
 locales = __LOCALES__       # the first one is the default language
 stale_days = 365
 

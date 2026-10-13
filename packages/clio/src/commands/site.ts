@@ -27,7 +27,7 @@ export async function build(vault: Vault, args: Args): Promise<number> {
 }
 
 /** Static file server with the same URL rules as the hosts: `/a` → `a.html` or `a/index.html`, else 404.html. */
-function serveDir(dir: string, port: number, inject = ""): ReturnType<typeof Bun.serve> {
+function serveDir(dir: string, port: number, base: string, inject = ""): ReturnType<typeof Bun.serve> {
   const find = (pathname: string): string | null => {
     let p: string;
     try {
@@ -53,23 +53,40 @@ function serveDir(dir: string, port: number, inject = ""): ReturnType<typeof Bun
     }
     return new Response(Bun.file(file), { status, headers: { "cache-control": "no-store" } });
   };
-  return Bun.serve({
-    port,
-    async fetch(req) {
-      const url = new URL(req.url);
-      const file = find(url.pathname);
+  const listen = (): ReturnType<typeof Bun.serve> => {
+    try {
+      return Bun.serve({ port, fetch });
+    } catch (e) {
+      if (String(e).includes("EADDRINUSE") || String((e as { code?: string }).code) === "EADDRINUSE") {
+        throw new Error(`port ${port} is in use; pick another with --port`);
+      }
+      throw e;
+    }
+  };
+  // The site lives under `base` (e.g. /kb/); files are at the root of the output folder.
+  const fetch = async (req: Request) => {
+    const url = new URL(req.url);
+    let path = url.pathname;
+    if (base !== "/") {
+      if (path === "/" || path === base.slice(0, -1)) return Response.redirect(base, 302);
+      if (!path.startsWith(base)) return new Response("not found (the site is served under " + base + ")", { status: 404 });
+      path = `/${path.slice(base.length)}`;
+    }
+    {
+      const file = find(path);
       if (file) return respond(file);
       const notFound = join(dir, "404.html");
       if (existsSync(notFound)) return respond(notFound, 404);
       return new Response("not found", { status: 404 });
-    },
-  });
+    }
+  };
+  return listen();
 }
 
 export async function serve(vault: Vault, args: Args): Promise<number> {
   const dir = resolve(str(args.flags, "out") ?? join(vault.root, ".clio/site"));
   if (!existsSync(join(dir, "index.html"))) fail(`nothing built in ${dir}; run clio build first`);
-  const server = serveDir(dir, num(args.flags, "port", 4321));
+  const server = serveDir(dir, num(args.flags, "port", 4321), vault.settings.engine.base);
   print(`serving ${relative(process.cwd(), dir) || "."} at ${c.cyan(`http://localhost:${server.port}${vault.settings.engine.base}`)}`);
   await new Promise(() => {});
   return 0;
@@ -106,7 +123,7 @@ export async function dev(first: Vault, args: Args): Promise<number> {
     for (const ctl of clients) ctl.enqueue("event: reload\ndata: 1\n\n");
   };
   await rebuild();
-  const server = serveDir(out, num(args.flags, "port", 4321), inject);
+  const server = serveDir(out, num(args.flags, "port", 4321), vault.settings.engine.base, inject);
   print(`dev server at ${c.cyan(`http://localhost:${server.port}${vault.settings.engine.base}`)} (watching ${relative(process.cwd(), vault.root) || "."})`);
 
   let pending = new Set<string>();

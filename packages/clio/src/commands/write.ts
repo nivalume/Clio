@@ -2,6 +2,7 @@
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, rename } from "node:fs/promises";
 import { basename, dirname, extname, join, posix, resolve } from "node:path";
+import { Glob } from "bun";
 import { str, type Args } from "../args";
 import { appendLog, fill, folderFor, frontmatter, setFrontmatter, slugify, writeNew } from "../files";
 import { c, fail, print } from "../ui";
@@ -71,6 +72,17 @@ export async function ingest(vault: Vault, args: Args): Promise<number> {
   for (let n = 2; existsSync(join(vault.root, rawPath)) && (await sha256File(join(vault.root, rawPath))) !== sha; n++) {
     rawPath = `raw/${id}-${n}${ext.toLowerCase()}`;
   }
+  // The same content already in raw/ under another name: point at it instead of storing a copy.
+  if (!existsSync(join(vault.root, rawPath)) && existsSync(join(vault.root, "raw"))) {
+    for await (const f of new Glob("**/*").scan({ cwd: join(vault.root, "raw"), onlyFiles: true })) {
+      const file = join(vault.root, "raw", f);
+      if (Bun.file(file).size === data.byteLength && (await sha256File(file)) === sha) {
+        rawPath = `raw/${f.split("\\").join("/")}`;
+        print(c.yellow(`this file is already in raw/ as ${rawPath}; the new source note points at it`));
+        break;
+      }
+    }
+  }
   await mkdir(join(vault.root, "raw"), { recursive: true });
   if (!existsSync(join(vault.root, rawPath))) {
     if (isUrl) await Bun.write(join(vault.root, rawPath), data);
@@ -99,7 +111,8 @@ export async function log(vault: Vault, args: Args): Promise<number> {
   const [op, ...rest] = args.positionals;
   const title = rest.join(" ").trim();
   if (!op || !title) fail('usage: clio log <op> "<title>"   (op: ingest, query, lint, edit, …)');
-  const lines = str(args.flags, "message")?.split("\n").filter(Boolean) ?? [];
+  // Lines may be separated by real newlines or by a typed "\n".
+  const lines = str(args.flags, "message")?.split(/\r?\n|\\n/).filter(Boolean) ?? [];
   print(`log.md  ${await appendLog(vault.root, vault.settings.engine.today, op, title, lines)}`);
   return 0;
 }

@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [syntax-cheatsheet, queries]
 updated: 2026-10-13
-translation-of-hash: "c6d8037a24be"
+translation-of-hash: "4547e3bb98f3"
 ---
 # Rich content
 
@@ -107,13 +107,13 @@ Rules:
 ::::tabs
 :::tab{title="Global install"}
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio build
 ```
 :::
 :::tab{title="Project install"}
 ```bash
-bun add github:nivalume/Clio
+bun add github:nivalume/Clio#v0.1.0
 bunx clio build
 ```
 :::
@@ -123,13 +123,13 @@ bunx clio build
 ::::tabs
 :::tab{title="Global install"}
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio build
 ```
 :::
 :::tab{title="Project install"}
 ```bash
-bun add github:nivalume/Clio
+bun add github:nivalume/Clio#v0.1.0
 bunx clio build
 ```
 :::
@@ -170,14 +170,14 @@ bunx clio build
 ````markdown
 :::steps
 1. Install Bun 1.2 or later.
-2. Run `bun add -g github:nivalume/Clio`.
+2. Run `bun add -g github:nivalume/Clio#v0.1.0`.
 3. Run `clio new site my-kb`.
 :::
 ````
 
 :::steps
 1. Install Bun 1.2 or later.
-2. Run `bun add -g github:nivalume/Clio`.
+2. Run `bun add -g github:nivalume/Clio#v0.1.0`.
 3. Run `clio new site my-kb`.
 :::
 

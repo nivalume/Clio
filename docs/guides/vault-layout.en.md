@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [information-architecture, writing-notes]
 updated: 2026-10-13
-translation-of-hash: "39756dd5057a"
+translation-of-hash: "72fc8ac83f39"
 ---
 # Vault layout
 
@@ -44,6 +44,9 @@ my-kb/
   templates/         one template per type, used by clio new
   theme/             theme.css to override colours and fonts
   skills/clio/       the Agent Skill
+  .claude/skills/clio    link to skills/clio, where Claude Code finds the skill
+  .agents/skills/clio    link to skills/clio, where Codex and other tools find the skill
+  README.md          what the project is, and the common commands
   package.json       depends on clio, pins the version
   vercel.json        Vercel deployment config
   .github/workflows/pages.yml    GitHub Pages deployment workflow
@@ -61,7 +64,7 @@ raw: raw/attention-is-all-you-need.pdf
 sha256: 3f2a9c…e81b
 ```
 
-Every `clio check` recomputes the hash and reports a `raw-modified` error if the file changed. Because the originals never change, every claim in the notes can be traced back to a fixed version. Files in `raw/` are not read as notes, but images in it can be embedded.
+Every `clio check` recomputes the hash and reports a `raw-modified` error if the file changed or is gone. Because the originals never change, every claim in the notes can be traced back to a fixed version. Files in `raw/` are not read as notes, but images in it can be embedded.
 
 ### notes/
 
@@ -91,13 +94,14 @@ One template per type, for example `templates/concept.md`. `clio new concept "Ti
 
 ### .clio/
 
-Output of `clio build` and `clio dev` (`.clio/site`) and the cache. It is not committed; delete it whenever you like and the next build recreates it.
+Output of `clio build` (`.clio/site`) and `clio dev` (`.clio/dev`), and the build cache when the project has no `node_modules` (`.clio/cache`). It is not committed; delete it whenever you like and the next build recreates it.
 
 ### Files at the root
 
 - `clio.toml`: site title, languages, types, relations, folder mapping, ignore list. Every key is in [[config]].
 - `AGENTS.md`: the layer 3 conventions, which agents read before they start; see [[agents#AGENTS.md is the schema layer]].
 - `CLAUDE.md`: a single line, `@AGENTS.md`. Claude Code reads `CLAUDE.md` and tools such as Codex read `AGENTS.md`, so both see the same conventions.
+- `skills/clio/`: the Agent Skill, installed by `clio new site` and `clio init`. `.claude/skills/clio` and `.agents/skills/clio` are symlinks to it (copies where symlinks cannot be created), so Claude Code, Codex and other tools find it without configuration; see [[agents#The Agent Skill]].
 - `package.json`, `vercel.json`, `.github/workflows/pages.yml`: deployment; see [[deploy]].
 
 ## Ids and paths
@@ -181,4 +185,4 @@ The full argument is in [[information-architecture]].
 
 ## Ignored paths
 
-These are skipped when reading notes: `.clio`, `.git`, `node_modules`, `.obsidian`, `.trash`, `dist`, `raw`, `templates`, `theme`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `log.md`. Add more under `[build] ignore` in `clio.toml`; see [[config#build]].
+These are skipped when reading notes: `.clio`, `.git`, `node_modules`, `.obsidian`, `.trash`, `dist`, `raw`, `templates`, `theme`, `skills`, `.claude`, `.agents`, `.github`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `log.md`. Add more under `[build] ignore` in `clio.toml`; see [[config#build]].

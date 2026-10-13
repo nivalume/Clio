@@ -32,7 +32,7 @@ updated: 2026-10-13
 
 ### 发布与安装
 
-- [ ] **发布到 npm，支持 `bun create clio`。** 现在从 GitHub 安装（`bun add -g github:nivalume/Clio`）。发布到 npm 之后可以按普通的版本号安装和升级，`bun create clio my-kb` 一步建好项目。
+- [ ] **发布到 npm。** 现在从 GitHub 安装（`bun add -g github:nivalume/Clio#v0.1.0`）。npm 上的 `clio` 这个名字已经被一个无关的包占用，所以会用带作用域的名字（例如 `@nivalume/clio`）发布，之后可以按普通的版本号安装和升级。
 - [ ] **预编译的原生二进制。** WebAssembly 版本已经够快，原生版本目前只用于测试和基准测试。对很大的知识库，按平台提供预编译的原生引擎可以进一步缩短构建时间，见 [[performance]]。
 
 ### 收录

@@ -11,7 +11,7 @@
  *     _assets/                     images referenced by notes
  *     pagefind/                    full-text search index
  */
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { cp, mkdir, rm } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, join, relative, resolve } from "node:path";
@@ -96,14 +96,52 @@ export async function buildSite(vault: Vault, opts: BuildOptions = {}): Promise<
   }
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
+  // Synchronous writes with a cache of created folders: tens of thousands of small files.
+  const made = new Set<string>();
+  const pagesHash = new Bun.CryptoHasher("sha1");
   const write = async (path: string, data: string) => {
     const file = join(out, path);
-    await mkdir(dirname(file), { recursive: true });
-    await Bun.write(file, data);
+    const dir = dirname(file);
+    if (!made.has(dir)) {
+      mkdirSync(dir, { recursive: true });
+      made.add(dir);
+    }
+    writeFileSync(file, data);
+    if (path.endsWith(".html")) {
+      pagesHash.update(path);
+      pagesHash.update(data);
+    }
   };
 
+  let mark = performance.now();
+  const phase = (name: string) => {
+    const now = performance.now();
+    log(`${name}: ${((now - mark) / 1000).toFixed(1)} s`);
+    mark = now;
+  };
   const summary = vault.build();
   const diags: Diag[] = vault.lint();
+  phase("vault");
+
+  // Graph layout, warm-started from the previous build so positions stay put.
+  const cacheDir = existsSync(join(vault.root, "node_modules")) ? join(vault.root, "node_modules/.cache/clio") : join(vault.root, ".clio/cache");
+  const layoutFile = join(cacheDir, "layout.json");
+  let previous: unknown = undefined;
+  if (opts.cache !== false && existsSync(layoutFile)) {
+    try {
+      previous = await Bun.file(layoutFile).json();
+    } catch {
+      previous = undefined;
+    }
+  }
+  const tl = performance.now();
+  const layout = vault.engine.command<{ keys: string[]; x: number[]; y: number[] }>({ cmd: "layout", ...(previous ? { previous } : {}) });
+  log(`layout: ${layout.keys.length} nodes in ${Math.round(performance.now() - tl)} ms${previous ? " (warm start)" : ""}`);
+  mark = performance.now();
+  if (opts.cache !== false) {
+    await mkdir(cacheDir, { recursive: true });
+    await Bun.write(layoutFile, JSON.stringify(layout));
+  }
   const renderer = await Renderer.create(vault.root, { cache: opts.cache });
   if (renderer.userPlugins.length) log(`plugins: ${renderer.userPlugins.join(", ")}`);
   const theme = existsSync(join(vault.root, "theme/theme.css"));
@@ -129,15 +167,7 @@ export async function buildSite(vault: Vault, opts: BuildOptions = {}): Promise<
     page({ lang, title, description, base: c.base, prefix: prefixOf(c, lang), siteTitle: c.title, boot, body, head, fonts: c.fonts, theme });
 
   const all = vault.pages();
-  const sources = new Map<string, string>();
-  const source = async (path: string) => {
-    let s = sources.get(path);
-    if (s === undefined) {
-      s = await Bun.file(join(vault.root, path)).text();
-      sources.set(path, s);
-    }
-    return s;
-  };
+  const source = async (path: string) => vault.text(path) ?? (await Bun.file(join(vault.root, path)).text());
 
   for (const lang of c.locales) {
     const t = ui(lang);
@@ -174,6 +204,7 @@ ${p.backlinks.length ? `<section class="static-related"><h2>${t.backlinks}</h2>$
       pageCount++;
     }
 
+    phase(`pages (${lang})`);
     // Data for the app.
     const wantedFrom = new Map<number, number[]>();
     for (const [s, tt] of graph.edges) if (graph.nodes[tt]?.wanted) wantedFrom.set(tt, [...(wantedFrom.get(tt) ?? []), s]);
@@ -187,8 +218,14 @@ ${p.backlinks.length ? `<section class="static-related"><h2>${t.backlinks}</h2>$
       .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id));
     const data = `_clio/${lang}/`;
     await write(`${data}site.json`, JSON.stringify({ ...site, description: c.description(lang), index, generated }));
-    await write(`${data}manifest.json`, JSON.stringify(manifest));
-    await write(`${data}graph.json`, JSON.stringify(graph));
+    // The app derives note URLs from ids and shows one line of summary: ship only what it reads.
+    const { url: _url, folder: _folder, words: _words, langs: _langs, cluster: _cluster, ...slim } = manifest;
+    slim.summary = (manifest.summary as string[]).map((t) => {
+      const chars = [...t];
+      return chars.length > 100 ? `${chars.slice(0, 99).join("")}…` : t;
+    });
+    await write(`${data}manifest.json`, JSON.stringify(slim));
+    await write(`${data}graph.json`, JSON.stringify({ ...graph, nodes: graph.nodes.map(({ url: _u, ...n }) => n) }));
     await write(`${data}lint.json`, JSON.stringify({ diags, wanted }));
 
     // View pages: the app renders them; the static HTML is a fallback.
@@ -204,7 +241,7 @@ ${hubs.length ? `<h2>${t.hubs}</h2>${list(hubs)}` : ""}${recent.length ? `<h2>${
     await write(fileOf(c, `${prefix}graph`), view("graph", t.graph));
     await write(fileOf(c, `${prefix}explore`), view("explore", t.explore, notes.length <= 2000 ? list(notes) : ""));
     await write(fileOf(c, `${prefix}health`), view("health", t.health));
-    await write(fileOf(c, `${prefix}wanted`), view("health", t.health));
+    await write(fileOf(c, `${prefix}wanted`), view("health", t.wanted));
     const tags = (site.tags ?? []) as [string, number][];
     await write(fileOf(c, `${prefix}tags`), view("tags", t.tags, list(tags.map(([tag, n]) => ({ title: `#${tag}`, url: `${prefix}tags/${tag.split("/").map(encodeURIComponent).join("/")}`, summary: String(n) })))));
     // A page per tag and per parent of a nested tag (`rust` for `rust/async`).
@@ -285,12 +322,20 @@ ${hubs.length ? `<h2>${t.hubs}</h2>${list(hubs)}` : ""}${recent.length ? `<h2>${
   if (c.url) {
     const urls = all.map((p) => `<url><loc>${escape(c.url + p.url)}</loc></url>`).join("\n");
     await write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
-    await write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${c.url}${c.base}sitemap.xml\n`);
+    // robots.txt only counts at the root of the domain.
+    if (c.base === "/") await write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${c.url}/sitemap.xml\n`);
   }
 
   await renderer.save();
+  phase("assets, app, llms.txt");
 
-  if (opts.search !== false) {
+  // The search index depends only on the HTML pages; reuse the last one when no page changed.
+  const searchKey = pagesHash.digest("hex");
+  const searchCache = join(cacheDir, "pagefind");
+  if (opts.search !== false && opts.cache !== false && existsSync(join(searchCache, searchKey, "pagefind.js"))) {
+    await cp(join(searchCache, searchKey), join(out, "pagefind"), { recursive: true });
+    phase("search index (unchanged, reused)");
+  } else if (opts.search !== false) {
     const pagefind = await import("pagefind");
     const { index, errors } = await pagefind.createIndex({});
     if (!index) throw new Error(`pagefind: ${errors.join("; ")}`);
@@ -298,6 +343,11 @@ ${hubs.length ? `<h2>${t.hubs}</h2>${list(hubs)}` : ""}${recent.length ? `<h2>${
     if (added.errors.length) throw new Error(`pagefind: ${added.errors.join("; ")}`);
     await index.writeFiles({ outputPath: join(out, "pagefind") });
     await pagefind.close();
+    phase("search index");
+    if (opts.cache !== false) {
+      await rm(searchCache, { recursive: true, force: true });
+      await cp(join(out, "pagefind"), join(searchCache, searchKey), { recursive: true });
+    }
   }
 
   return {

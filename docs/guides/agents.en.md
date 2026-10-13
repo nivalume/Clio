@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [vault-layout, cli, information-architecture]
 updated: 2026-10-13
-translation-of-hash: "4243f7b7c543"
+translation-of-hash: "93c3f364fe72"
 ---
 # Working with agents
 
@@ -37,7 +37,7 @@ One difference from the original: Karpathy's `index.md` is kept by the model ent
 
 ## The Agent Skill
 
-`clio new site` and `clio init` install an Agent Skill in the project: `skills/clio/SKILL.md`, in the Agent Skills format. It tells the agent:
+`clio new site` and `clio init` install an Agent Skill in the project: `skills/clio/SKILL.md`, in the Agent Skills format. The skill folder is linked as `.claude/skills/clio` and `.agents/skills/clio`, where Claude Code, Codex and other tools find it on their own; where symlinks cannot be created, it is copied instead. It tells the agent:
 
 - when to use the skill: ingesting sources, answering questions about the vault, maintaining or translating notes;
 - every step of the four workflows below;
@@ -147,8 +147,8 @@ Answering a question from the vault:
 1. `clio search "<keywords from the question>" --json` finds candidate notes; read their summaries first.
 2. Run `clio context <id> --hops 2` on the one or two most relevant notes to read them in full with their neighbours.
 3. Link the answer to the notes it relies on, so a person can check it.
-4. If the answer is worth keeping (a comparison, an analysis), file it with `clio new question "<question>"` under `notes/questions/`, link it to the notes it relies on, and link to it from the relevant topic notes.
-5. Record it with `clio log query "<question>"`.
+4. If the answer is worth keeping (a comparison, an analysis), file it with `clio new question "<question>" --id <english-id>` under `notes/questions/`, link it to the notes it relies on, and link to it from the relevant topic notes. Without `--id` the id comes from the title, so a Chinese title gives a Chinese id.
+5. Record it with `clio log query "<question>"`, listing the notes created and updated with `--message`.
 
 Step 4 is what makes the pattern work: good answers don't stay in a chat history; they go back into the vault, ready for the next question.
 
@@ -172,12 +172,12 @@ Linting also covers what the engine can't see: two notes on the same concept, a 
 
 ## Translate
 
-1. `clio translate-status --json` lists missing and stale translations.
-2. Translate each one, or update it to match the changes in the original.
-3. Set `translation-of-hash` to the hash given in the list.
+1. `clio translate-status --json` lists missing, unpinned and stale translations.
+2. Create a missing translation with `clio new <type> "<translated title>" --id <id> --lang en`: it copies the original to `<id>.en.md` for you to translate. Update a stale one to match the changes in the original.
+3. `clio translate-status --pin <id>` writes the original's current hash into the translation's `translation-of-hash`. For several notes, separate the ids with commas: `--pin a,b,c`.
 4. `clio check` confirms there is no `translation-stale` left.
 
-File naming and hashes are explained in [[multilingual]].
+The hash can also be written into `translation-of-hash` by hand; the value is the hash given in the list. File naming and hashes are explained in [[multilingual]].
 
 ## Commands for agents
 
@@ -241,7 +241,7 @@ The agent decides what to do from `code` and finds the spot from `path` and `lin
 
 ### clio mcp
 
-Runs an MCP server on stdio that exposes `search`, `show`, `backlinks`, `context` and `check` as tools, for clients that can't easily run a CLI. To register it in Claude Code:
+Runs an MCP server on stdio that exposes `search`, `show`, `backlinks`, `context` and `check` as tools, for clients that can't easily run a CLI. Before each call the server re-reads the files that changed, so a note the agent has just edited is seen by the next call. To register it in Claude Code:
 
 ```bash
 claude mcp add clio -- clio mcp --dir ~/my-kb
@@ -262,7 +262,7 @@ Each entry is a level-2 heading in a fixed format:
 - filed as notes/questions/self-attention-complexity.md
 ```
 
-`clio log <op> <title>` writes the heading, and `clio ingest` writes an `ingest` entry by itself. The usual operation names are `ingest`, `query`, `lint` and `edit`. Entries are only appended, never edited: the log is the vault's history, and an agent that reads the last few entries before starting knows where the previous session stopped:
+`clio log <op> <title>` writes the heading, and each line of `--message` goes below it; `clio ingest` writes an `ingest` entry by itself, listing the raw file and the new source note. The usual operation names are `ingest`, `query`, `lint` and `edit`. Entries are only appended, never edited: the log is the vault's history, and an agent that reads the last few entries before starting knows where the previous session stopped:
 
 ```bash
 grep "^## \[" log.md | tail -5

@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [architecture]
 updated: 2026-10-13
-translation-of-hash: "0f9326a8be39"
+translation-of-hash: "5f0fb202854a"
 ---
 # Roadmap
 
@@ -33,7 +33,7 @@ This page lists what Clio v1 already does and what comes later. Planned items ha
 
 ### Release and installation
 
-- [ ] **Publish to npm and support `bun create clio`.** Today Clio installs from GitHub (`bun add -g github:nivalume/Clio`). With an npm release it can be installed and upgraded by ordinary version numbers, and `bun create clio my-kb` sets up a project in one step.
+- [ ] **Publish to npm.** Today Clio installs from GitHub (`bun add -g github:nivalume/Clio#v0.1.0`). The npm name `clio` belongs to an unrelated package, so the release will use a scoped name (such as `@nivalume/clio`); after that Clio installs and upgrades by ordinary version numbers.
 - [ ] **Prebuilt native binaries.** The WebAssembly build is fast enough; the native build is currently used only for tests and benchmarks. For very large vaults, prebuilt native engines per platform would shorten builds further; see [[performance]].
 
 ### Ingest

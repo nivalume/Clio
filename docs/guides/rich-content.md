@@ -106,13 +106,13 @@ GFM 的功能都可以用：表格、任务列表、删除线、自动链接、�
 ::::tabs
 :::tab{title="全局安装"}
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio build
 ```
 :::
 :::tab{title="项目内安装"}
 ```bash
-bun add github:nivalume/Clio
+bun add github:nivalume/Clio#v0.1.0
 bunx clio build
 ```
 :::
@@ -122,13 +122,13 @@ bunx clio build
 ::::tabs
 :::tab{title="全局安装"}
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio build
 ```
 :::
 :::tab{title="项目内安装"}
 ```bash
-bun add github:nivalume/Clio
+bun add github:nivalume/Clio#v0.1.0
 bunx clio build
 ```
 :::
@@ -169,14 +169,14 @@ bunx clio build
 ````markdown
 :::steps
 1. 安装 Bun 1.2 或更高版本。
-2. 运行 `bun add -g github:nivalume/Clio`。
+2. 运行 `bun add -g github:nivalume/Clio#v0.1.0`。
 3. 运行 `clio new site my-kb`。
 :::
 ````
 
 :::steps
 1. 安装 Bun 1.2 或更高版本。
-2. 运行 `bun add -g github:nivalume/Clio`。
+2. 运行 `bun add -g github:nivalume/Clio#v0.1.0`。
 3. 运行 `clio new site my-kb`。
 :::
 

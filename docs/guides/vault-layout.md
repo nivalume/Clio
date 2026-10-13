@@ -43,6 +43,9 @@ my-kb/
   templates/         每种类型一个模板，clio new 使用
   theme/             theme.css，覆盖颜色和字体
   skills/clio/       Agent Skill
+  .claude/skills/clio    指向 skills/clio 的链接，Claude Code 从这里发现 Skill
+  .agents/skills/clio    指向 skills/clio 的链接，Codex 等工具从这里发现 Skill
+  README.md          项目说明和常用命令
   package.json       依赖 clio，固定版本
   vercel.json        Vercel 部署配置
   .github/workflows/pages.yml    GitHub Pages 部署工作流
@@ -60,7 +63,7 @@ raw: raw/attention-is-all-you-need.pdf
 sha256: 3f2a9c…e81b
 ```
 
-之后每次 `clio check` 都重新计算哈希，原件被改过时报告 `raw-modified` 错误。原件不变，笔记里的每条结论才能追溯到确定的版本。`raw/` 不作为笔记读取，但其中的图片可以嵌入笔记。
+之后每次 `clio check` 都重新计算哈希，原件被改过或删除时报告 `raw-modified` 错误。原件不变，笔记里的每条结论才能追溯到确定的版本。`raw/` 不作为笔记读取，但其中的图片可以嵌入笔记。
 
 ### notes/
 
@@ -90,13 +93,14 @@ sha256: 3f2a9c…e81b
 
 ### .clio/
 
-`clio build` 和 `clio dev` 的输出（`.clio/site`）和缓存。它不进 git，删掉也没关系，下次构建会重新生成。
+`clio build` 的输出（`.clio/site`）、`clio dev` 的输出（`.clio/dev`），以及项目没有 `node_modules` 时的构建缓存（`.clio/cache`）。它不进 git，删掉也没关系，下次构建会重新生成。
 
 ### 根目录的文件
 
 - `clio.toml`：站点标题、语言、类型、关系、目录映射、忽略列表。全部键见 [[config]]。
 - `AGENTS.md`：第 3 层约定，Agent 每次工作前先读它，见 [[agents#AGENTS.md 是约定层]]。
 - `CLAUDE.md`：只有一行 `@AGENTS.md`。Claude Code 读 `CLAUDE.md`，Codex 等工具读 `AGENTS.md`，这样它们看到的是同一份约定。
+- `skills/clio/`：Agent Skill，`clio new site` 和 `clio init` 安装。`.claude/skills/clio` 和 `.agents/skills/clio` 是指向它的符号链接（不能建符号链接时是副本），这样 Claude Code 和 Codex 等工具不用配置就能发现它，见 [[agents#Agent Skill]]。
 - `package.json`、`vercel.json`、`.github/workflows/pages.yml`：部署用，见 [[deploy]]。
 
 ## id 与路径
@@ -180,4 +184,4 @@ flowchart LR
 
 ## 忽略的路径
 
-读取笔记时跳过：`.clio`、`.git`、`node_modules`、`.obsidian`、`.trash`、`dist`、`raw`、`templates`、`theme`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`log.md`。在 `clio.toml` 的 `[build] ignore` 里可以追加，见 [[config#build]]。
+读取笔记时跳过：`.clio`、`.git`、`node_modules`、`.obsidian`、`.trash`、`dist`、`raw`、`templates`、`theme`、`skills`、`.claude`、`.agents`、`.github`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`log.md`。在 `clio.toml` 的 `[build] ignore` 里可以追加，见 [[config#build]]。

@@ -100,7 +100,7 @@ export function ExplorePage({ lang, params }: { lang: string; params: URLSearchP
             render={(k) => {
               const i = rows[k];
               return (
-                <a className="msg explore-row" href={m.url[i]}>
+                <a className="msg explore-row" href={href.note(lang, m.id[i])}>
                   <PixelAvatar type={m.types[m.type[i]]} />
                   <div style={{ minWidth: 0 }}>
                     <div className="msg__head">

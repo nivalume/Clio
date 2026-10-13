@@ -22,8 +22,8 @@ updated: 2026-10-13
 | 键 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `title` | 字符串 | `"Clio"` | 网站标题，显示在顶栏、浏览器标签和 `llms.txt` |
-| `description` | 字符串 | `""` | 网站说明，用于首页和 `<meta name="description">` |
-| `base` | 字符串 | `"/"` | 网站所在的 URL 路径。GitHub Pages 的项目站点要写 `"/仓库名/"`。缺少开头或结尾的 `/` 时自动补上 |
+| `description` | 字符串，或表：语言 → 字符串 | `""` | 网站说明，用于首页和 `<meta name="description">`。写成表时每种语言用自己的说明，缺少的语言用默认语言的 |
+| `base` | 字符串 | `"/"` | 网站所在的 URL 路径，例如 `"/kb/"`。缺少开头或结尾的 `/` 时自动补上。`clio build --base` 优先于这里的值；生成的 GitHub Pages 工作流用它传入路径，所以 GitHub Pages 不需要改这里 |
 | `locales` | 字符串数组 | `["zh"]` | 语言列表，第一项是默认语言。多于一项时 URL 带语言前缀 `/zh/n/<id>`、`/en/n/<id>` |
 | `stale_days` | 整数 | `180` | `reviewed`（没有时用 `updated`）早于这么多天的笔记报告 `stale` 提示 |
 
@@ -35,21 +35,31 @@ locales = ["zh", "en"]
 stale_days = 365
 ```
 
+每种语言一个说明时：
+
+```toml
+description = { zh = "编译器、语言模型和读过的论文", en = "Compilers, language models and the papers I have read" }
+```
+
 多语言的文件命名和链接规则见 [[multilingual]]。
 
 ## site
 
-`[site]` 是网站上的仓库链接。
+`[site]` 设置网站上的仓库链接、网站的完整地址和字体。
 
 | 键 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `repo` | 字符串（URL） | 无 | 源码仓库地址。设置后每页显示「编辑此页」链接 |
 | `edit_path` | 字符串 | `""` | 知识库在仓库里的子目录，例如 `"docs/"`；知识库就是仓库根目录时留空 |
+| `url` | 字符串（URL） | 无 | 网站的绝对地址，只写协议和域名，例如 `"https://kb.example.com"`，路径部分由 `base` 提供。设置后构建生成 `sitemap.xml` 和 `robots.txt`，每个笔记页面带 `<link rel="canonical">` |
+| `fonts` | 布尔 | `true` | 为 `false` 时不从 Google Fonts 加载 Space Grotesk 和 Space Mono，页面使用 `--font-text` 和 `--font-mono` 列表里本机已有的字体 |
 
 ```toml
 [site]
 repo = "https://github.com/you/kb"
 edit_path = ""
+url = "https://kb.example.com"
+fonts = false
 ```
 
 ## types
@@ -134,7 +144,7 @@ label = { zh = "可替代", en = "alternative to" }
 ignore = ["drafts/private", "**/*.excalidraw.md"]
 ```
 
-不含 `*` 的项匹配这个路径本身以及它下面的所有文件；含 `*` 的项按 glob 匹配。默认忽略：`.clio`、`.git`、`node_modules`、`.obsidian`、`.trash`、`dist`、`raw`、`templates`、`theme`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`log.md`。任何路径中含 `node_modules` 的文件也被忽略。
+不含 `*` 的项匹配这个路径本身以及它下面的所有文件；含 `*` 的项按 glob 匹配。默认忽略：`.clio`、`.git`、`node_modules`、`.obsidian`、`.trash`、`dist`、`raw`、`templates`、`theme`、`skills`、`.claude`、`.agents`、`.github`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`log.md`。任何路径中含 `node_modules` 的文件也被忽略。
 
 `raw/` 被忽略是指它不作为笔记读取；里面的文件仍然由 `clio check` 校验哈希，图片仍可以被嵌入。
 
@@ -150,6 +160,7 @@ stale_days = 180
 [site]
 repo = "https://github.com/you/kb"
 edit_path = ""
+url = "https://kb.example.com"
 
 [types.paper]
 label = { zh = "论文", en = "Paper" }
@@ -225,7 +236,9 @@ ignore = ["drafts/private"]
 
 ## 插件
 
-`clio.config.ts` 放在知识库根目录，默认导出一个配置对象。Bun 直接运行 TypeScript，不需要编译。插件用来渲染自定义的代码块：引擎把代码块、公式、Mermaid 和图表留成占位符，构建时 Bun 把每个占位符交给第一个声明能处理它的插件，插件返回 HTML。
+`clio.config.ts` 放在知识库根目录，默认导出一个配置对象（也可以用 `clio.config.js` 或 `clio.config.mjs`）。Bun 直接运行 TypeScript，不需要编译。插件用来渲染自定义的代码块：引擎把代码块、公式、Mermaid 和图表留成占位符，构建时 Bun 按 `plugins` 的顺序把每个占位符交给插件，插件返回 HTML。
+
+一个插件认领一个块需要同时满足两个条件：没有写 `langs`，或者 `langs` 包含块的语言；没有写 `kinds`，或者 `kinds` 包含块的种类。认领的插件返回 `null` 或 `undefined` 时，块交给下一个插件；所有插件都不处理时，使用内置渲染。
 
 ```ts title="clio.config.ts 的类型"
 export interface ClioConfig {
@@ -233,14 +246,14 @@ export interface ClioConfig {
 }
 
 export interface ClioPlugin {
-  /** 插件名，出现在错误信息里 */
+  /** 插件名，构建时打印在日志里 */
   name: string;
   /** 处理哪些代码块语言，例如 ["abc"]；不写表示不按语言筛选 */
   langs?: string[];
   /** 处理哪些占位符：code、math、mermaid、chart；不写表示全部 */
   kinds?: Array<"code" | "math" | "mermaid" | "chart">;
-  /** 返回 HTML；返回 undefined 表示不处理，交给下一个插件或内置渲染 */
-  render(block: PluginBlock, ctx: PluginContext): string | undefined | Promise<string | undefined>;
+  /** 返回 HTML；返回 null 或 undefined 表示不处理，交给下一个插件或内置渲染 */
+  render(block: PluginBlock, ctx: PluginContext): string | null | undefined | Promise<string | null | undefined>;
 }
 
 export interface PluginBlock {
@@ -297,4 +310,4 @@ export default {
 };
 ```
 
-插件在构建时运行，输出写进静态 HTML，浏览器端不需要插件代码。内置的 Shiki 代码高亮、KaTeX 公式和图表渲染走的是同一条路径，用户插件排在它们前面。
+插件在构建时运行，输出写进静态 HTML，浏览器端不需要插件代码。内置的 Shiki 代码高亮、KaTeX 公式和图表渲染走的是同一条路径，用户插件排在它们前面。内置渲染的结果按内容缓存（见 [[cli#clio build]]），插件的结果不缓存，每次构建都会调用插件。

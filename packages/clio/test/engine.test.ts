@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { generate } from "../../../bench/gen";
 import { Engine } from "../src/engine";
 
 const root = join(import.meta.dir, "../../..");
@@ -46,6 +47,13 @@ describe("engine", () => {
       for (const lang of ["zh", "en"]) commands.push(JSON.stringify({ cmd: "page", id, lang }));
       commands.push(JSON.stringify({ cmd: "context", id, hops: 2 }));
     }
+    // Layout: cold, the graph carrying positions, then a warm start.
+    commands.push(JSON.stringify({ cmd: "layout" }), JSON.stringify({ cmd: "graph" }));
+    commands.push(JSON.stringify({ cmd: "layout", previous: { keys: ["pratt-parser", "tokenizer"], x: [10.5, -3], y: [2, 7.25] } }));
+    // A larger synthetic vault exercises Barnes–Hut deeply.
+    commands.push(JSON.stringify({ cmd: "config", config: { locales: ["zh"], today: "2026-10-13" } }));
+    for (const n of generate({ count: 1500, seed: 3 })) commands.push(JSON.stringify({ cmd: "upsert", path: n.path, text: n.text }));
+    commands.push(JSON.stringify({ cmd: "build" }), JSON.stringify({ cmd: "layout" }));
     const engine = await Engine.load();
     const wasmOut = commands.map((c) => engine.commandRaw(c));
     const proc = Bun.spawn([nativeBin], { stdin: "pipe", stdout: "pipe" });

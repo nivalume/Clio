@@ -45,10 +45,38 @@ export function computeLayout(g: GraphData): Layout {
     adj[s].push(t);
     adj[t].push(s);
   }
-  if (g.nodes.every((d) => typeof d.x === "number" && typeof d.y === "number")) {
+  if (g.nodes.length && g.nodes.every((d) => typeof d.x === "number" && typeof d.y === "number")) {
+    // Positions from the build have their own scale. Small graphs: bring the median distance to the
+    // nearest node to ~48 units so labels fit; large ones: the mean edge length to ~40 units.
+    let scale = 1;
+    if (n <= 3000) {
+      const nn: number[] = [];
+      for (let i = 0; i < n; i++) {
+        let best = Infinity;
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          const d = Math.hypot(g.nodes[i].x! - g.nodes[j].x!, g.nodes[i].y! - g.nodes[j].y!);
+          if (d < best) best = d;
+        }
+        if (Number.isFinite(best) && best > 0) nn.push(best);
+      }
+      nn.sort((a, b) => a - b);
+      if (nn.length) scale = 48 / nn[Math.floor(nn.length / 2)];
+    } else {
+      let sum = 0;
+      let count = 0;
+      const step = Math.max(1, Math.floor(g.edges.length / 20000));
+      for (let e = 0; e < g.edges.length; e += step) {
+        const [s, t] = g.edges[e];
+        if (s >= n || t >= n || s === t) continue;
+        sum += Math.hypot(g.nodes[s].x! - g.nodes[t].x!, g.nodes[s].y! - g.nodes[t].y!);
+        count++;
+      }
+      if (count && sum > 0) scale = 40 / (sum / count);
+    }
     g.nodes.forEach((d, i) => {
-      x[i] = d.x!;
-      y[i] = d.y!;
+      x[i] = d.x! * scale;
+      y[i] = d.y! * scale;
     });
     return { x, y, r, adj };
   }
@@ -207,9 +235,37 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
     if (dim) stroke3((s, tt) => hot(s, tt), ink, 0.9, 1.7);
     ctx.globalAlpha = 1;
 
-    // Nodes.
+    // Nodes. Far out, many nodes: small squares batched by colour, no outlines.
     const stroke = 1.5 / Math.max(t.k, 0.6);
+    const coarse = data.nodes.length > 2000 && t.k < 0.6;
+    if (coarse) {
+      const byColor = new Map<string, number[]>();
+      for (let i = 0; i < data.nodes.length; i++) {
+        if (!visible[i] || !inView(i)) continue;
+        const d = data.nodes[i];
+        const c = d.wanted ? muted : color(typeStyle(d.type).color);
+        let list = byColor.get(c);
+        if (!list) byColor.set(c, (list = []));
+        list.push(i);
+      }
+      for (const [c, list] of byColor) {
+        ctx.fillStyle = c;
+        for (const dimmed of [true, false]) {
+          ctx.globalAlpha = dimmed ? 0.22 : 1;
+          ctx.beginPath();
+          for (const i of list) {
+            if (dim && near.has(i) === dimmed) continue;
+            if (!dim && dimmed) continue;
+            const s = Math.max(layout.r[i], 1.6 / t.k);
+            ctx.rect(layout.x[i] - s, layout.y[i] - s, 2 * s, 2 * s);
+          }
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
     for (let i = 0; i < data.nodes.length; i++) {
+      if (coarse && !(near.has(i) || matches.has(i) || i === selected)) continue;
       if (!visible[i] || !inView(i)) continue;
       const d = data.nodes[i];
       const st = typeStyle(d.wanted ? "wanted" : d.type);
@@ -317,11 +373,45 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
     }
   };
 
-  const schedule = () => {
+  /** Large graphs: while panning or zooming, move a snapshot of the last full frame; redraw fully once the gesture pauses. */
+  const heavy = data.nodes.length > 3000 || data.edges.length > 8000;
+  const snapshot = useRef<{ canvas: HTMLCanvasElement; t: ZoomTransform } | null>(null);
+  const settle = useRef(0);
+
+  const full = () => {
+    draw.current();
+    const canvas = canvasRef.current;
+    if (!heavy || !canvas) return;
+    const snap = snapshot.current?.canvas ?? document.createElement("canvas");
+    snap.width = canvas.width;
+    snap.height = canvas.height;
+    snap.getContext("2d")?.drawImage(canvas, 0, 0);
+    snapshot.current = { canvas: snap, t: transform.current };
+  };
+
+  const schedule = (moving = false) => {
     if (frame.current) return;
     frame.current = requestAnimationFrame(() => {
       frame.current = 0;
-      draw.current();
+      const canvas = canvasRef.current;
+      const snap = snapshot.current;
+      if (moving && heavy && snap && canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const dpr = window.devicePixelRatio || 1;
+          const t = transform.current;
+          const k = t.k / snap.t.k;
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.setTransform(k, 0, 0, k, (t.x - snap.t.x * k) * dpr, (t.y - snap.t.y * k) * dpr);
+          ctx.drawImage(snap.canvas, 0, 0);
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+        clearTimeout(settle.current);
+        settle.current = window.setTimeout(() => requestAnimationFrame(full), 140);
+        return;
+      }
+      full();
     });
   };
 
@@ -418,7 +508,7 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
         if (e.sourceEvent) moved.current = true;
         transform.current = e.transform;
         setTip(null);
-        schedule();
+        schedule(true);
       });
     zoomRef.current = z;
     const sel = select(canvas);

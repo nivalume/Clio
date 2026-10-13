@@ -83,6 +83,8 @@ function rawRef(text: string): { raw: string; sha256: string; line: number } | n
 export class Vault {
   /** Path → modification time of every note file the engine holds. */
   private mtimes = new Map<string, number>();
+  /** Current text of every note file. */
+  private texts = new Map<string, string>();
   private rawRefs = new Map<string, { raw: string; sha256: string; line: number }>();
   private rawCache: Diag[] | null = null;
 
@@ -111,6 +113,11 @@ export class Vault {
     return this.locales[0] ?? "zh";
   }
 
+  /** The text of a note file as last read. */
+  text(path: string): string | undefined {
+    return this.texts.get(path);
+  }
+
   get files(): string[] {
     return [...this.mtimes.keys()].sort();
   }
@@ -118,6 +125,7 @@ export class Vault {
   private load(path: string, text: string, mtime: number): void {
     this.engine.upsert(path, text);
     this.mtimes.set(path, mtime);
+    this.texts.set(path, text);
     const ref = rawRef(text);
     if (ref) this.rawRefs.set(path, ref);
     else this.rawRefs.delete(path);
@@ -127,6 +135,7 @@ export class Vault {
   private drop(path: string): void {
     this.engine.command({ cmd: "remove", path });
     this.mtimes.delete(path);
+    this.texts.delete(path);
     this.rawRefs.delete(path);
     this.rawCache = null;
   }

@@ -23,9 +23,9 @@ Clio 是一个由人和 AI Agent 共同维护的知识库系统。你用带扩�
 需要 Bun 1.2 或更高版本。
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio new site my-kb
-clio dev --dir my-kb
+cd my-kb && bun install && bun run dev
 ```
 
 浏览器打开 `http://localhost:4321`。下一步读 [[getting-started]]。

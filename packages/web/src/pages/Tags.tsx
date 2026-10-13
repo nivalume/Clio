@@ -78,7 +78,7 @@ export function TagsPage({ lang, tag }: { lang: string; tag: string | null }) {
         <Window icon="#" iconColor="var(--yellow)" title={`#${tag}`} subtitle={`${notes.length} ${t.notes}`}>
           <div className="chat">
             {notes.map((i) => (
-              <a key={m.id[i]} className="msg" href={m.url[i]}>
+              <a key={m.id[i]} className="msg" href={href.note(lang, m.id[i])}>
                 <PixelAvatar type={m.types[m.type[i]]} />
                 <div style={{ minWidth: 0 }}>
                   <div className="msg__head">

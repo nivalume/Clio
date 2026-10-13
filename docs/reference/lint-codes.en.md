@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [cli, agents]
 updated: 2026-10-13
-translation-of-hash: "9c546e7f12ec"
+translation-of-hash: "ac56e85a839f"
 ---
 # Lint codes
 
@@ -28,7 +28,7 @@ An error means the vault's data cannot be trusted (unreadable frontmatter, an id
 |---|---|---|
 | [[#frontmatter]] | error | The frontmatter is not valid YAML |
 | [[#duplicate-id]] | error | Two files use the same id in the same language |
-| [[#raw-modified]] | error | A file in `raw/` changed after it was ingested |
+| [[#raw-modified]] | error | A file in `raw/` changed or disappeared after it was ingested |
 | [[#wanted]] | warning | Link to a note that does not exist |
 | [[#missing-anchor]] | warning | The linked section or block is not in the target note |
 | [[#ambiguous-link]] | warning | An alias or title matches several notes |
@@ -74,7 +74,9 @@ The second file is skipped, and every link to `attention` goes to the first. Fix
 
 ### raw-modified
 
-A raw source in `raw/` was modified after it was ingested: its current sha256 differs from the `sha256` recorded in the source note's frontmatter. Raw sources are read-only; the source note and every claim citing it refer to the content as ingested.
+A raw source in `raw/` was modified after it was ingested: its current sha256 differs from the `sha256` recorded in the source note's frontmatter. The same error is reported when the file that `raw:` points to doesn't exist. Raw sources are read-only; the source note and every claim citing it refer to the content as ingested.
+
+Only notes with both `raw:` and `sha256:` are checked. The check runs in the Bun CLI, not in the engine: the engine doesn't read the file system, so the CLI reads the files in `raw/` and hashes them. `clio check`, `clio build` and the `check` tool of `clio mcp` all include it.
 
 ```yaml
 # notes/sources/attention-is-all-you-need.md
@@ -82,7 +84,7 @@ raw: raw/attention-is-all-you-need.pdf
 sha256: 3f2a9c…e81b      # the file no longer has this hash
 ```
 
-Fix: if the change was a mistake, restore the file from version control. If you really need the new version, ingest it as a new source with [[cli#clio ingest]] and update the notes that cite it.
+Fix: if the change or deletion was a mistake, restore the file from version control. If you really need the new version, ingest it as a new source with [[cli#clio ingest]] and update the notes that cite it.
 
 ## Warnings
 

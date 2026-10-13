@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [customizing, vault-layout]
 updated: 2026-10-13
-translation-of-hash: "a037db2861c1"
+translation-of-hash: "4227d51fbcce"
 ---
 # Configuration
 
@@ -23,8 +23,8 @@ An empty `clio.toml` is valid: every key has a default.
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `title` | string | `"Clio"` | Site title, shown in the top bar, the browser tab and `llms.txt` |
-| `description` | string | `""` | Site description, used on the home page and in `<meta name="description">` |
-| `base` | string | `"/"` | URL path the site is served from. A GitHub Pages project site needs `"/repo-name/"`. A missing leading or trailing `/` is added |
+| `description` | string, or table: language → string | `""` | Site description, used on the home page and in `<meta name="description">`. As a table, each language gets its own description; a missing language uses the default language's |
+| `base` | string | `"/"` | URL path the site is served from, e.g. `"/kb/"`. A missing leading or trailing `/` is added. `clio build --base` takes precedence; the generated GitHub Pages workflow passes the path that way, so GitHub Pages needs no change here |
 | `locales` | array of strings | `["zh"]` | Languages; the first is the default. With more than one, URLs carry a language prefix: `/zh/n/<id>`, `/en/n/<id>` |
 | `stale_days` | integer | `180` | Notes whose `reviewed` date (or `updated`, if there is none) is older than this get a `stale` notice |
 
@@ -36,21 +36,31 @@ locales = ["en", "zh"]
 stale_days = 365
 ```
 
+With one description per language:
+
+```toml
+description = { zh = "编译器、语言模型和读过的论文", en = "Compilers, language models and the papers I have read" }
+```
+
 File naming and linking across languages are covered in [[multilingual]].
 
 ## site
 
-`[site]` links the site to its repository.
+`[site]` sets the repository link, the site's full address and the fonts.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `repo` | string (URL) | none | Source repository. When set, every page shows an "edit this page" link |
 | `edit_path` | string | `""` | Path of the vault inside the repository, e.g. `"docs/"`; empty when the vault is the repository root |
+| `url` | string (URL) | none | The site's absolute address, scheme and host only, e.g. `"https://kb.example.com"`; the path comes from `base`. When set, the build writes `sitemap.xml` and `robots.txt`, and every note page gets a `<link rel="canonical">` |
+| `fonts` | boolean | `true` | When `false`, Space Grotesk and Space Mono are not loaded from Google Fonts; pages use whichever fonts from the `--font-text` and `--font-mono` lists are installed |
 
 ```toml
 [site]
 repo = "https://github.com/you/kb"
 edit_path = ""
+url = "https://kb.example.com"
+fonts = false
 ```
 
 ## types
@@ -135,7 +145,7 @@ The built-in relations are listed in [[linking]]. An undeclared relation gives a
 ignore = ["drafts/private", "**/*.excalidraw.md"]
 ```
 
-An entry without `*` matches that path and everything below it; an entry with `*` is a glob. Ignored by default: `.clio`, `.git`, `node_modules`, `.obsidian`, `.trash`, `dist`, `raw`, `templates`, `theme`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `log.md`. Any path containing `node_modules` is ignored as well.
+An entry without `*` matches that path and everything below it; an entry with `*` is a glob. Ignored by default: `.clio`, `.git`, `node_modules`, `.obsidian`, `.trash`, `dist`, `raw`, `templates`, `theme`, `skills`, `.claude`, `.agents`, `.github`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `log.md`. Any path containing `node_modules` is ignored as well.
 
 `raw/` is ignored only in the sense that its files are not read as notes: `clio check` still verifies their hashes, and images in it can still be embedded.
 
@@ -151,6 +161,7 @@ stale_days = 180
 [site]
 repo = "https://github.com/you/kb"
 edit_path = ""
+url = "https://kb.example.com"
 
 [types.paper]
 label = { zh = "论文", en = "Paper" }
@@ -226,7 +237,9 @@ The design decisions behind these variables are in [[design]].
 
 ## Plugins
 
-`clio.config.ts` sits in the vault root and default-exports a configuration object. Bun runs TypeScript directly; there is no compile step. Plugins render custom fenced blocks: the engine leaves code blocks, math, Mermaid and charts as placeholders, and at build time Bun hands each placeholder to the first plugin that declares it can handle it. The plugin returns HTML.
+`clio.config.ts` sits in the vault root and default-exports a configuration object (`clio.config.js` and `clio.config.mjs` work too). Bun runs TypeScript directly; there is no compile step. Plugins render custom fenced blocks: the engine leaves code blocks, math, Mermaid and charts as placeholders, and at build time Bun offers each placeholder to the plugins in the order of `plugins`. The plugin returns HTML.
+
+A plugin claims a block when both conditions hold: it has no `langs`, or `langs` includes the block's language; and it has no `kinds`, or `kinds` includes the block's kind. If the claiming plugin returns `null` or `undefined`, the block goes on to the next plugin. If no plugin handles it, the built-in renderer does.
 
 ```ts title="clio.config.ts types"
 export interface ClioConfig {
@@ -234,14 +247,14 @@ export interface ClioConfig {
 }
 
 export interface ClioPlugin {
-  /** Plugin name, shown in error messages */
+  /** Plugin name, printed in the build log */
   name: string;
   /** Code block languages this plugin handles, e.g. ["abc"]; omit to match any language */
   langs?: string[];
   /** Placeholder kinds it handles: code, math, mermaid, chart; omit for all */
   kinds?: Array<"code" | "math" | "mermaid" | "chart">;
-  /** Return HTML, or undefined to pass the block on to the next plugin or the built-in renderer */
-  render(block: PluginBlock, ctx: PluginContext): string | undefined | Promise<string | undefined>;
+  /** Return HTML, or null or undefined to pass the block on to the next plugin or the built-in renderer */
+  render(block: PluginBlock, ctx: PluginContext): string | null | undefined | Promise<string | null | undefined>;
 }
 
 export interface PluginBlock {
@@ -298,4 +311,4 @@ export default {
 };
 ```
 
-Plugins run at build time and their output is written into the static HTML, so no plugin code ships to the browser. The built-in Shiki highlighting, KaTeX math and chart rendering take the same path; user plugins come before them.
+Plugins run at build time and their output is written into the static HTML, so no plugin code ships to the browser. The built-in Shiki highlighting, KaTeX math and chart rendering take the same path; user plugins come before them. Built-in results are cached by content (see [[cli#clio build]]); plugin results are not, so plugins run on every build.

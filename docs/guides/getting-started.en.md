@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [vault-layout, cli]
 updated: 2026-10-13
-translation-of-hash: "1a4a4093589f"
+translation-of-hash: "ec63dfe53596"
 ---
 # Getting started
 
@@ -32,23 +32,25 @@ curl -fsSL https://bun.sh/install | bash
 ### Install Clio
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio --version
 ```
 
-For now Clio installs straight from GitHub; an npm release is planned.
+For now Clio installs straight from GitHub; `#v0.1.0` pins the version. An npm release is planned.
 
 ### Create a vault
 
 ```bash
-clio new site my-kb
+clio new site my-kb --locales en
 cd my-kb
 bun install
 ```
 
-`clio new site` writes the config, folders, templates, theme, deployment files and the Agent Skill. The default starter is `llm-wiki`, meant for a personal or team knowledge base; use `--starter docs` for a documentation site or `--starter blank` for just the config and a home page. Add `--locales zh,en` for a bilingual vault.
+`clio new site` writes the config, folders, templates, theme, deployment files, the Agent Skill and a set of example notes. `--locales en` makes English the vault's language; without it the default is Chinese. Use `--locales en,zh` for a bilingual vault. The default starter is `llm-wiki`, meant for a personal or team knowledge base; use `--starter docs` for a documentation site or `--starter blank` for just the config and a home page.
 
-`bun install` installs Clio into the project itself: the generated `package.json` depends on `"clio": "github:nivalume/Clio"`. The project pins its own Clio version, and your hosting platform builds with that version, whatever you have installed globally.
+`bun install` installs Clio into the project itself: the generated `package.json` depends on `"clio": "github:nivalume/Clio#v0.1.0"`. The project pins its own Clio version, and your hosting platform builds with that version, whatever you have installed globally.
+
+`package.json` has four scripts, `dev`, `build`, `check` and `serve`; `bun run dev` runs `clio dev` with the project's Clio. `bunx clio …` also works inside the project. Don't use `bunx clio` in a folder where Clio is not installed: the npm registry has an unrelated package named `clio`, and `bunx` would download and run it.
 
 ### Look around
 
@@ -60,19 +62,25 @@ my-kb/
   log.md           operations log, append-only
   raw/             original sources, read-only
   notes/           notes: sources/ concepts/ entities/ topics/ questions/
+  journal/         optional daily notes
   templates/       one template per note type
   theme/           theme.css to override colours and fonts
+  skills/clio/     the Agent Skill
+  package.json     depends on clio; defines the dev, build, check and serve scripts
+  vercel.json      Vercel deployment config
 ```
 
 The folders under `notes/` set a note's default type; they are not topics. [[vault-layout]] explains every folder and why it is laid out this way.
 
+`notes/` and `raw/` already hold an example: one raw source and the source, concept, entity, topic and question notes made from it, with the steps recorded in `log.md`. Read through it to see how a vault fits together, and delete it when you no longer need it.
+
 ### Start the preview
 
 ```bash
-clio dev
+bun run dev
 ```
 
-Open `http://localhost:4321`. `clio dev` builds once, then watches your files: save any note and it rebuilds and reloads the browser. If the port is taken, add `--port 8080`.
+Open `http://localhost:4321`. `bun run dev` runs `clio dev`, which builds once, then watches your files: save any note and it rebuilds and reloads the browser. If the port is taken, use `bun run dev --port 8080`.
 
 ### Write your first note
 
@@ -108,26 +116,28 @@ $ clio check
 notes/concepts/vector-search.md
   12   warning wanted                link to missing note `bm25`
   14   warning wanted                link to missing note `embedding`
+notes/topics/note-taking.md
+  18   warning wanted                link to missing note `spaced-repetition`
 
-2 notes · 2 files · 2 links · 2 wanted · 0 errors · 2 warnings · 1 notices
+8 notes · 8 files · 29 links · 3 wanted · 0 errors · 3 warnings · 1 notices
 ```
 
-Each line shows the line number, level, lint code and message. `wanted` means a link points to a note that doesn't exist yet. It is a warning, not an error: writing the link first and the note later is the normal way to work. Wanted notes appear in the site's "not written yet" list and as ghost nodes in the graph.
+Each line shows the line number, level, lint code and message. `wanted` means a link points to a note that doesn't exist yet. It is a warning, not an error: writing the link first and the note later is the normal way to work. The third one comes from the example notes, where `spaced-repetition` is a deliberate wanted link. Wanted notes appear in the site's "not written yet" list and as ghost nodes in the graph.
 
 Only errors, such as frontmatter that isn't valid YAML, make `clio check` exit with code 1. Add `--all` to also see notices, such as orphan notes that nothing links to. [[lint-codes]] lists every code.
 
 ### Build
 
 ```bash
-clio build
-clio serve
+bun run build
+bun run serve
 ```
 
-`clio build` writes the site to `.clio/site`: one static HTML page per note, plus the front-end app, the search index and an `llms.txt` for language models. `clio serve` serves that folder locally so you can check what you are about to deploy.
+`bun run build` runs `clio build`, which writes the site to `.clio/site`: one static HTML page per note, plus the front-end app, the search index and an `llms.txt` for language models. `bun run serve` runs `clio serve`, which serves that folder locally so you can check what you are about to deploy.
 
 ### Deploy
 
-Push the project to GitHub and import the repository in Vercel. The project already has a `vercel.json`, so there is nothing to configure, and every push deploys. [[deploy]] covers GitHub Pages and other static hosts.
+Push the project to GitHub and import the repository in Vercel. The project already has a `vercel.json`, which runs `bun run check` and then `bun run build`, so there is nothing to configure, and every push deploys. The project also has a GitHub Pages workflow. [[deploy]] covers GitHub Pages and other static hosts.
 :::
 
 ## Next

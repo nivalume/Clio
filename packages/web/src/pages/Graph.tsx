@@ -82,8 +82,8 @@ export function GraphPage({ lang, focus, theme }: { lang: string; focus: string 
   const open = (i: number) => {
     const n = data?.nodes[i];
     if (!n) return;
-    if (n.url) navigate(n.url);
-    else navigate(`${href.health(lang)}#${encodeURIComponent(n.id)}`);
+    if (n.wanted) navigate(`${href.health(lang)}#${encodeURIComponent(n.id)}`);
+    else navigate(href.note(lang, n.id));
   };
 
   if (error) return <p className="muted pad">{t.notFound}</p>;
@@ -316,7 +316,7 @@ function GraphTable({ data, lang, hiddenTypes, query }: { data: GraphData; lang:
               const d = data.nodes[i];
               return (
                 <tr key={d.id}>
-                  <td>{d.url ? <a href={d.url}>{d.title}</a> : <span className="muted">{d.title}</span>}</td>
+                  <td>{d.wanted ? <span className="muted">{d.title}</span> : <a href={href.note(lang, d.id)}>{d.title}</a>}</td>
                   <td>
                     <TypeTag type={d.wanted ? "wanted" : d.type} />
                   </td>

@@ -110,6 +110,7 @@ impl Engine {
             "context" => self.context(v),
             "backlinks" => self.backlinks(v),
             "translations" => self.translations(),
+            "layout" => self.layout(v),
             "resolve" => {
                 self.vault();
                 let vault = self.vault.as_ref().unwrap();
@@ -337,13 +338,23 @@ impl Engine {
         let vault = self.vault.as_ref().unwrap();
         let mut kinds: Vec<String> = Vec::new();
         let mut nodes = Vec::new();
+        let pos = |i: usize, node: &mut Value| {
+            if let Some((x, y)) = vault.layout.as_ref().and_then(|l| l.get(i)) {
+                node["x"] = json!(x);
+                node["y"] = json!(y);
+            }
+        };
         for i in 0..vault.node_count() as u32 {
             let (n, _) = vault.variant(&self.notes, i, &lang);
-            nodes.push(json!({ "id": n.id, "title": n.title, "type": n.kind, "rank": (vault.rank[i as usize] * 1e6).round() / 1e6,
-                               "cluster": vault.cluster[i as usize], "url": vault.url(&self.notes, &self.cfg, i, &lang) }));
+            let mut node = json!({ "id": n.id, "title": n.title, "type": n.kind, "rank": (vault.rank[i as usize] * 1e6).round() / 1e6,
+                               "cluster": vault.cluster[i as usize], "url": vault.url(&self.notes, &self.cfg, i, &lang) });
+            pos(i as usize, &mut node);
+            nodes.push(node);
         }
-        for (k, label) in &vault.ghosts {
-            nodes.push(json!({ "id": k, "title": label, "type": "wanted", "wanted": true, "rank": 0, "cluster": -1 }));
+        for (g, (k, label)) in vault.ghosts.iter().enumerate() {
+            let mut node = json!({ "id": k, "title": label, "type": "wanted", "wanted": true, "rank": 0, "cluster": -1 });
+            pos(vault.node_count() + g, &mut node);
+            nodes.push(node);
         }
         let edges: Vec<Value> = vault
             .edges
@@ -396,6 +407,67 @@ impl Engine {
             out.push(json!({ "id": src.id, "title": src.title, "path": src.path, "lang": src.lang, "hash": src.hash, "translations": langs }));
         }
         Value::Array(out)
+    }
+
+    /// ForceAtlas2 positions for notes and wanted notes. `previous: { keys, x, y }`
+    /// (from the last build) gives a warm start; the result is kept for `graph`.
+    fn layout(&mut self, v: &Value) -> Value {
+        self.vault();
+        let vault = self.vault.as_mut().unwrap();
+        let n = vault.node_count();
+        let mut keys: Vec<String> = vault.keys.clone();
+        keys.extend(vault.ghosts.iter().map(|(k, _)| k.clone()));
+        let total = keys.len();
+        let mut pairs: BTreeSet<(u32, u32)> = BTreeSet::new();
+        for e in &vault.edges {
+            let (a, b) = (e.source.min(e.target), e.source.max(e.target));
+            if a != b && (b as usize) < total {
+                pairs.insert((a, b));
+            }
+        }
+        let edges: Vec<(u32, u32, f64)> = pairs.into_iter().map(|(a, b)| (a, b, 1.0)).collect();
+        let mut cluster: Vec<u32> = vault.cluster.clone();
+        cluster.resize(total, u32::MAX);
+        for &(a, b, _) in &edges {
+            // A wanted note sits with the first note that links to it.
+            if (b as usize) >= n && cluster[b as usize] == u32::MAX && (a as usize) < n {
+                cluster[b as usize] = cluster[a as usize];
+            }
+        }
+        let mut previous: Vec<Option<(f64, f64)>> = vec![None; total];
+        if let Some(p) = v.get("previous") {
+            let pk = p.get("keys").and_then(Value::as_array);
+            let px = p.get("x").and_then(Value::as_array);
+            let py = p.get("y").and_then(Value::as_array);
+            if let (Some(pk), Some(px), Some(py)) = (pk, px, py) {
+                let mut at: BTreeMap<&str, (f64, f64)> = BTreeMap::new();
+                for ((k, x), y) in pk.iter().zip(px).zip(py) {
+                    if let (Some(k), Some(x), Some(y)) = (k.as_str(), x.as_f64(), y.as_f64()) {
+                        at.insert(k, (x, y));
+                    }
+                }
+                for (i, k) in keys.iter().enumerate() {
+                    previous[i] = at.get(k.as_str()).copied();
+                }
+            }
+        }
+        let params = v.get("iterations").and_then(Value::as_u64).map(|it| {
+            let mut p =
+                crate::layout::Params::for_size(total, previous.iter().any(Option::is_some));
+            p.iterations = it as usize;
+            p
+        });
+        let input = crate::layout::Input {
+            keys: &keys,
+            edges: &edges,
+            cluster: &cluster,
+            previous: &previous,
+        };
+        let pos = crate::layout::forceatlas2(&input, params);
+        let xs: Vec<f64> = pos.iter().map(|p| p.0).collect();
+        let ys: Vec<f64> = pos.iter().map(|p| p.1).collect();
+        vault.layout = Some(pos);
+        json!({ "keys": keys, "x": xs, "y": ys })
     }
 
     fn lint(&mut self) -> Value {

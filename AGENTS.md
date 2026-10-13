@@ -18,6 +18,7 @@ bun run build:wasm        # after any change under crates/ (commits packages/cli
 bun run build:web         # after any change under packages/web/ (commits packages/clio/web/)
 bun run check:fresh       # CI fails when either is stale
 bun run check             # lint the handbook
+bun bench/run.ts 20000    # engine, build and layout timings on a synthetic 20k-note vault (minutes)
 ```
 
 ## Rules that are easy to break

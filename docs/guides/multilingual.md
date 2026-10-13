@@ -38,6 +38,10 @@ locales = ["zh", "en"]
 clio new concept "BM25" --id bm25 --lang en   # 新建 notes/concepts/bm25.en.md
 ```
 
+`bm25` 已经存在时，这条命令把原文复制成 `bm25.en.md`，标题换成命令里给的标题，正文留给你翻译。
+
+`clio new site --locales zh,en` 新建项目时，起步模板里的笔记已经带有译文，并且写好了 `translation-of-hash`。
+
 ## 链接与回退
 
 链接写 id，不写语言。同一个 `[[bm25]]` 在中文页面上指向中文版，在英文页面上指向英文版，显示的也是那种语言的标题。
@@ -84,7 +88,7 @@ translation-of-hash: "9c1e0b7a4d2f"
 clio translate-status
 ```
 
-它列出缺失的译文和过期的译文，并给出每篇应该写入的哈希。也可以用 `clio show <id> --json` 查看一篇笔记的 `hash` 字段。
+它分三组列出需要处理的译文：缺失的（`missing`）、没写哈希的（`unpinned`）和过期的（`stale`），并给出每篇应该写入的哈希。加 `--lang en` 只看一种语言。也可以用 `clio show <id> --json` 查看一篇笔记的 `hash` 字段。
 
 ### 更新译文
 
@@ -92,7 +96,11 @@ clio translate-status
 
 ### 写入哈希
 
-把 `translation-of-hash` 改成原文当前的哈希。
+```bash
+clio translate-status --pin bm25
+```
+
+`--pin` 把原文当前的哈希写进 `bm25` 所有语言译文的 `translation-of-hash`；加 `--lang en` 时只写英文版。几篇一起时用逗号分隔 id。也可以手工把清单里给出的哈希写进 `translation-of-hash`。
 
 ### 检查
 
@@ -116,4 +124,4 @@ clio check
 
 ## 让 Agent 翻译
 
-翻译是适合交给 Agent 的工作：`clio translate-status --json` 给出待处理的清单，Agent 逐篇翻译、写入哈希，最后跑 `clio check` 确认。具体流程见 [[agents#翻译]]。
+翻译是适合交给 Agent 的工作：`clio translate-status --json` 给出待处理的清单，Agent 逐篇翻译，用 `clio translate-status --pin <id>` 写入哈希，最后跑 `clio check` 确认。具体流程见 [[agents#翻译]]。

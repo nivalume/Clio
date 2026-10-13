@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [lint-codes, config]
 updated: 2026-10-13
-translation-of-hash: "8f8bf7515371"
+translation-of-hash: "18cb4ce5e4f3"
 ---
 # Multilingual vaults
 
@@ -38,6 +38,10 @@ Each version has its own frontmatter: `title`, `summary` and `aliases` are in th
 ```bash
 clio new concept "BM25" --id bm25 --lang en   # creates notes/concepts/bm25.en.md
 ```
+
+If `bm25` already exists, this copies the original to `bm25.en.md` with the title from the command and the body left for you to translate.
+
+A project created with `clio new site --locales zh,en` starts with translations of the starter notes, with `translation-of-hash` already set.
 
 ## Links and fallback
 
@@ -85,7 +89,7 @@ Edit the default-language version as usual.
 clio translate-status
 ```
 
-It lists missing and stale translations, with the hash to write for each. `clio show <id> --json` also shows a note's `hash` field.
+It lists the translations that need work in three groups: missing ones (`missing`), ones without a hash (`unpinned`) and stale ones (`stale`), with the hash to write for each. Add `--lang en` to see one language only. `clio show <id> --json` also shows a note's `hash` field.
 
 ### Update the translation
 
@@ -93,7 +97,11 @@ Bring the translation in line with the changes to the original. If a change does
 
 ### Pin the hash
 
-Set `translation-of-hash` to the original's current hash.
+```bash
+clio translate-status --pin bm25
+```
+
+`--pin` writes the original's current hash into `translation-of-hash` of every translation of `bm25`; with `--lang en`, only into the English one. Separate several ids with commas. You can also write the hash from the list into `translation-of-hash` by hand.
 
 ### Check
 
@@ -117,4 +125,4 @@ Notices only show with `--all`. [[lint-codes]] lists every code.
 
 ## Letting an agent translate
 
-Translation suits an agent well: `clio translate-status --json` gives the list of work, the agent translates note by note and pins each hash, and `clio check` confirms the result. The steps are in [[agents#Translate]].
+Translation suits an agent well: `clio translate-status --json` gives the list of work, the agent translates note by note and pins each hash with `clio translate-status --pin <id>`, and `clio check` confirms the result. The steps are in [[agents#Translate]].

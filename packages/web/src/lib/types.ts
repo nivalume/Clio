@@ -84,7 +84,7 @@ export interface SiteItem {
   rank: number;
 }
 
-/** Column-oriented note list. */
+/** Column-oriented note list (summaries shortened; note URLs come from `href.note`). */
 export interface Manifest {
   lang: string;
   types: string[];
@@ -95,15 +95,10 @@ export interface Manifest {
   tagIds: number[][];
   status: (string | null)[];
   updated: (string | null)[];
-  folder: string[];
   summary: string[];
   rank: number[];
-  cluster: number[];
-  words: number[];
   in: number[];
   out: number[];
-  langs: string[][];
-  url: string[];
 }
 
 export interface GraphData {

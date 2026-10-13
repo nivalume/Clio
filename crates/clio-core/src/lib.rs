@@ -6,6 +6,7 @@ pub mod api;
 pub mod config;
 pub mod frontmatter;
 pub mod graph;
+pub mod layout;
 pub mod markers;
 pub mod note;
 pub mod query;

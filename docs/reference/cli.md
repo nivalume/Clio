@@ -16,11 +16,11 @@ updated: 2026-10-13
 需要 Bun 1.2 或更高版本。
 
 ```bash
-bun add -g github:nivalume/Clio
+bun add -g github:nivalume/Clio#v0.1.0
 clio --version
 ```
 
-`clio new site` 生成的项目在 `package.json` 里依赖 `"clio": "github:nivalume/Clio"`，所以项目目录里也可以用 `bunx clio …`。npm 发布在 [[roadmap]] 里。
+`clio new site` 生成的项目在 `package.json` 里依赖 `"clio": "github:nivalume/Clio#v0.1.0"`，并定义了 `dev`、`build`、`check`、`serve` 四个脚本。项目里运行过 `bun install` 之后，`bun run build` 和 `bunx clio build` 用的都是项目里装的 Clio。不要在没有安装 Clio 的目录里用 `bunx clio`：npm 上有一个无关的同名包 `clio`，`bunx` 会下载并运行它。npm 发布在 [[roadmap]] 里。
 
 ## 用法
 
@@ -54,7 +54,7 @@ clio <command> [arguments] [--dir <vault>] [--json] [--lang <lang>]
 | 码 | 含义 |
 |---|---|
 | `0` | 成功 |
-| `1` | `check` 发现错误（加 `--strict` 时警告也算）；`resolve` 没有匹配；参数错误、未知命令、找不到笔记 |
+| `1` | `check` 发现错误（加 `--strict` 时警告也算）；`build --strict` 时知识库有错误；`resolve` 没有匹配；参数错误、未知命令、找不到笔记 |
 
 错误信息写到 stderr，正常输出写到 stdout，所以 `clio search 解析 --json | jq` 这样的管道是安全的。
 
@@ -63,7 +63,7 @@ clio <command> [arguments] [--dir <vault>] [--json] [--lang <lang>]
 | 命令 | 作用 |
 |---|---|
 | [[#clio new site]] | 新建项目：配置、`AGENTS.md`、首页和日志、目录、模板、主题、部署文件、Agent Skill |
-| [[#clio init]] | 在当前目录建立知识库；`--adopt` 接管已有的 Obsidian 库 |
+| [[#clio init]] | 在当前目录写入配置、`AGENTS.md` 和 Agent Skill；`--adopt` 接管已有的 Obsidian 库 |
 | [[#clio new]] | 按模板新建一篇笔记 |
 | [[#clio ingest]] | 收录一份原始资料并建立来源笔记草稿 |
 | [[#clio log]] | 往 `log.md` 追加一条操作记录 |
@@ -78,7 +78,7 @@ clio <command> [arguments] [--dir <vault>] [--json] [--lang <lang>]
 | [[#clio resolve]] | 一个 id、别名或标题指向哪篇笔记 |
 | [[#clio stats]] | 按类型计数、聚类、检查汇总 |
 | [[#clio mv]] | 重命名笔记并改写所有指向它的链接 |
-| [[#clio translate-status]] | 缺失和过期的翻译 |
+| [[#clio translate-status]] | 缺失、未固定和过期的翻译；`--pin` 写入原文的哈希 |
 | [[#clio mcp]] | 在 stdio 上运行 MCP 服务 |
 
 ## 项目
@@ -89,23 +89,35 @@ clio <command> [arguments] [--dir <vault>] [--json] [--lang <lang>]
 clio new site <dir> [--starter llm-wiki|docs|blank] [--locales zh,en] [--title T]
 ```
 
-新建一个项目目录，作用类似 `hugo new site`。生成 `clio.toml`、`AGENTS.md`（以及只含 `@AGENTS.md` 的 `CLAUDE.md`）、`index.md`、`log.md`、`raw/`、`notes/` 下的各类型目录、`templates/`、`theme/`、`package.json`、`vercel.json`、GitHub Pages 工作流和 Agent Skill。目录结构见 [[vault-layout]]。
+新建一个项目目录，作用类似 `hugo new site`。所有起步模板都生成 `clio.toml`、`AGENTS.md`（以及只含 `@AGENTS.md` 的 `CLAUDE.md`）、`README.md`、`.gitignore`、`index.md`、`log.md`、`templates/`、`theme/theme.css`、`package.json`、`vercel.json` 和 `.github/workflows/pages.yml`。目录结构见 [[vault-layout]]。
 
 | 参数 | 默认 | 作用 |
 |---|---|---|
-| `--starter` | `llm-wiki` | `llm-wiki`：按 Karpathy 模式组织的个人知识库；`docs`：文档站，目录为 `guides/ reference/ concepts/`；`blank`：只有配置和首页 |
+| `--starter` | `llm-wiki` | 起步模板，见下表 |
 | `--locales` | `zh` | 语言列表，第一项是默认语言 |
 | `--title` | 目录名 | 网站标题，写入 `clio.toml` |
+
+| 起步模板 | 内容 |
+|---|---|
+| `llm-wiki` | 按 Karpathy 模式组织的知识库：`raw/`、`notes/` 下五个类型目录、`journal/`、7 个模板，以及一个完整的示例 |
+| `docs` | 文档站：`guides/`、`reference/`、`concepts/` 各一篇示例，模板 `guide`、`reference`、`concept`、`note` |
+| `blank` | 只有配置、首页和 `note` 模板 |
+
+`llm-wiki` 的示例走完了一遍收录和提问：一份原始资料 `raw/one-idea-per-card.md` 和它的来源笔记，概念 `atomic-note` 和 `zettelkasten`，实体 `niklas-luhmann`，主题 `note-taking`，问答 `why-one-idea-per-note`，以及 `log.md` 里的 `init`、`ingest`、`query`、`lint` 四条记录。主题笔记里有一个有意留下的待写链接 `spaced-repetition`，所以新项目的 `clio check` 会报告一个 `wanted` 警告。
+
+`--locales` 里除第一项以外的语言，只要起步模板有这种语言的文字（`zh` 或 `en`），就写成译文 `x.<lang>.md`，并且已经写好 `translation-of-hash`。
+
+Agent Skill 复制到 `skills/clio/`，再链接为 `.claude/skills/clio` 和 `.agents/skills/clio`，Claude Code 和 Codex 等工具在这两个位置查找 Skill。不能建符号链接的系统上改为复制。
+
+`package.json` 依赖 `"clio": "github:nivalume/Clio#v0.1.0"`，脚本 `dev`、`build`、`check`、`serve` 分别运行同名的 `clio` 命令。`vercel.json` 和工作流的内容见 [[deploy]]。
 
 ```text
 $ clio new site my-kb --locales zh,en --title "我的知识库"
 created my-kb/ (starter: llm-wiki)
-  clio.toml  AGENTS.md  CLAUDE.md  index.md  log.md
-  raw/  notes/{sources,concepts,entities,topics,questions}/  journal/
-  templates/ (7)  theme/theme.css
-  package.json  vercel.json  .github/workflows/pages.yml
-  agent skill: skills/clio/SKILL.md
-next: cd my-kb && bun install && clio dev
+  .gitignore  AGENTS.md  CLAUDE.md  README.md  clio.toml  index.en.md  index.md  log.md  package.json  vercel.json
+  journal/  notes/  raw/  skills/  templates/  theme/  (templates: 7)
+  agent skill: skills/clio/SKILL.md, .claude/skills/clio, .agents/skills/clio
+next: cd my-kb && bun install && bun run dev
 ```
 
 目标目录已存在且不为空时报错退出，不覆盖任何文件。
@@ -113,55 +125,96 @@ next: cd my-kb && bun install && clio dev
 ### clio init
 
 ```text
-clio init [--adopt]
+clio init [--adopt] [--locales zh,en] [--title T] [--dir DIR]
 ```
 
-在当前目录（或 `--dir`）建立知识库：写入 `clio.toml`、`AGENTS.md` 和 Agent Skill，已存在的文件不覆盖。
+在当前目录（或 `--dir`）建立知识库：写入 `clio.toml`、`AGENTS.md`、`CLAUDE.md` 和 Agent Skill（位置和 `clio new site` 相同：`skills/clio/`，链接为 `.claude/skills/clio` 和 `.agents/skills/clio`）。已存在的文件一律不覆盖。不生成首页、模板和部署文件。
 
-加 `--adopt` 用于已有的 Obsidian 库：不移动任何文件；读取现有的顶层目录，在 `clio.toml` 的 `[folders]` 里写出目录到类型的映射（需要你确认或修改），并安装 Skill。`.obsidian/` 和 `.trash/` 默认被忽略，所以这个库仍然可以继续用 Obsidian 打开。
+| 参数 | 默认 | 作用 |
+|---|---|---|
+| `--adopt` | | 接管已有的 Obsidian 库，见下文 |
+| `--locales` | `zh` | 写入 `clio.toml` 的语言列表；第一项也决定 `AGENTS.md` 用中文还是英文 |
+| `--title` | 目录名 | 网站标题 |
+
+加 `--adopt` 用于已有的 Obsidian 库：不移动任何文件；按顶层目录统计笔记，根据目录名猜测类型（例如 `Papers` → `source`，`People` → `entity`，`MOCs` → `topic`，`Daily` → `journal`），写进 `clio.toml` 的 `[folders]`。猜不出的目录写成注释行，需要时去掉 `#` 并改成合适的类型。`.obsidian/` 和 `.trash/` 默认被忽略，所以这个库仍然可以继续用 Obsidian 打开。
 
 ```text
 $ clio init --adopt
-found 1,284 notes in 9 folders
+found 22 notes in 7 folders
 wrote clio.toml with [folders]:
-  "Papers/" = "source"
+  "Daily/" = "journal"
   "People/" = "entity"
-  "MOCs/"   = "topic"
-  (6 folders left as type note; edit clio.toml to map them)
-installed agent skill: skills/clio/SKILL.md
+  "Papers/" = "source"
+  "MOCs/" = "topic"
+  (3 folders left as type note; edit clio.toml to map them)
+installed agent skill: skills/clio/SKILL.md, .claude/skills/clio, .agents/skills/clio
+wrote clio.toml, AGENTS.md, CLAUDE.md
 run: clio check
+```
+
+```toml title="clio.toml（节选）"
+# Folder → note type for notes without `type:` in their frontmatter.
+[folders]
+"Daily/"  = "journal"
+"People/" = "entity"
+"Papers/" = "source"
+"MOCs/"   = "topic"
+# "Inbox/" = "note"
+# "Archive/" = "note"
+# "Projects/" = "note"
 ```
 
 ### clio new
 
 ```text
-clio new <type> <title> [--id ID] [--tags a,b] [--lang en]
+clio new <type> "<title>" [--id ID] [--tags a,b] [--lang xx]
 ```
 
-用 `templates/<type>.md` 新建一篇笔记，存到该类型对应的目录（由 `[folders]` 决定，见 [[config#folders]]）。模板里可用的变量：`{{title}}`、`{{id}}`、`{{date}}`、`{{lang}}`、`{{type}}`。
+新建一篇笔记，存到 `[folders]` 里映射到这个类型的目录（见 [[config#folders]]）；没有映射时放在 `notes/`，没有 `notes/` 目录时放在根目录。内容取自 `templates/<type>.md`，没有这个模板时用内置的模板（frontmatter 含 `title`、`type`、`summary`、`tags`、`status: seed`、`created`、`updated`）。模板里可用的变量：`{{title}}`、`{{id}}`、`{{date}}`、`{{lang}}`、`{{type}}`。
 
 | 参数 | 作用 |
 |---|---|
 | `--id` | 笔记 id，也是文件名；默认由标题生成 |
 | `--tags` | 逗号分隔的标签，写入 frontmatter |
-| `--lang` | 新建某篇已有笔记的译文 `<id>.<lang>.md`，或指定新笔记的语言 |
+| `--lang` | id 已存在时，新建它的译文 `<id>.<lang>.md`；否则指定新笔记的语言 |
+
+由标题生成 id 时，转成小写，空格和标点变成 `-`，任何文字的字母都保留。所以中文标题得到中文 id：`clio new concept "倒排索引"` 生成 `notes/concepts/倒排索引.md`。想要英文 id 就用 `--id`。
 
 ```text
 $ clio new concept "Pratt 解析器" --id pratt-parser --tags parser,compilers
 created notes/concepts/pratt-parser.md
 ```
 
-id 已被占用时报错退出。
+`--lang` 加上一个已有的 id，会在原文旁边建一份原文的副本，标题换成命令里给的标题，正文留给你翻译。翻译完用 [[#clio translate-status]] 的 `--pin` 写入哈希：
+
+```text
+$ clio new concept "Tokenizer" --id tokenizer --lang en
+created notes/concepts/tokenizer.en.md (translation of notes/concepts/tokenizer.md; pin it with clio translate-status --pin tokenizer when done)
+```
+
+类型未知、id 已被占用或文件已存在时报错退出。
 
 ## 资料与日志
 
 ### clio ingest
 
 ```text
-clio ingest <file|url> [--title T]
+clio ingest <file|url> [--title T] [--id ID]
 ```
 
-把一份原始资料收录进知识库：复制到 `raw/`（URL 原样下载，不做转换），计算 sha256，在 `notes/sources/` 下建立一篇 `status: draft` 的来源笔记（frontmatter 含 `raw:` 和 `sha256:`），并往 `log.md` 追加一条 `ingest` 记录。之后 `clio check` 会核对 `raw/` 文件是否被改过，见 [[lint-codes#raw-modified]]。
+把一份原始资料收录进知识库：
+
+1. 复制到 `raw/<id><扩展名>`。URL 原样下载，不做转换；扩展名取自 URL 路径，没有时按响应的内容类型决定。`raw/` 里已经有同名但内容不同的文件时，文件名依次加 `-2`、`-3`……，不覆盖已有文件。
+2. 计算 sha256。
+3. 在映射到 `source` 类型的目录（默认 `notes/sources/`）下建立一篇 `status: draft` 的来源笔记。有 `templates/source.md` 时用它，否则用内置模板。frontmatter 写入 `raw:` 和 `sha256:`，URL 资料还写入 `url:`。
+4. 往 `log.md` 追加一条 `ingest` 记录，下面列出原件和新建的笔记。
+
+| 参数 | 作用 |
+|---|---|
+| `--title` | 来源笔记的标题；默认是文件名，`-` 和 `_` 换成空格 |
+| `--id` | 来源笔记的 id，也是 `raw/` 里的文件名；默认由标题生成，规则同 [[#clio new]] |
+
+id 已被占用时报错退出，不写入任何文件。之后 `clio check` 会核对 `raw/` 文件是否被改过或删除，见 [[lint-codes#raw-modified]]。
 
 ```text
 $ clio ingest ~/Downloads/attention.pdf --title "Attention Is All You Need"
@@ -170,17 +223,33 @@ created notes/sources/attention-is-all-you-need.md (draft)
 log.md  ## [2026-10-13] ingest | Attention Is All You Need
 ```
 
+```text
+$ clio ingest https://example.com/
+raw/example-com.html  sha256 25ddf2…e484
+created notes/sources/example-com.md (draft)
+log.md  ## [2026-10-13] ingest | example.com
+```
+
 ### clio log
 
 ```text
-clio log <op> <title>
+clio log <op> "<title>" [--message "<lines>"]
 ```
 
-往 `log.md` 末尾追加一行标题 `## [YYYY-MM-DD] op | title`。`log.md` 只追加，不修改旧记录。常用的 `op` 是 `ingest`、`query`、`lint`、`edit`。
+往 `log.md` 末尾追加一行标题 `## [YYYY-MM-DD] op | title`。`--message` 的每一行写在标题下面，通常是改动的笔记列表。`log.md` 不存在时新建。`log.md` 只追加，不修改旧记录。常用的 `op` 是 `ingest`、`query`、`lint`、`edit`。
 
 ```text
-$ clio log query "Pratt 与递归下降的比较"
+$ clio log query "Pratt 与递归下降的比较" --message "- created: pratt-vs-recursive-descent
+- updated: compilers"
 log.md  ## [2026-10-13] query | Pratt 与递归下降的比较
+```
+
+`log.md` 里写入的是：
+
+```markdown
+## [2026-10-13] query | Pratt 与递归下降的比较
+- created: pratt-vs-recursive-descent
+- updated: compilers
 ```
 
 ## 构建与预览
@@ -188,49 +257,78 @@ log.md  ## [2026-10-13] query | Pratt 与递归下降的比较
 ### clio build
 
 ```text
-clio build [--out DIR] [--base /path/]
+clio build [--out DIR] [--base /path/] [--no-search] [--no-cache] [--json] [--strict]
 ```
 
-生成静态网站，默认输出到 `.clio/site`。每篇笔记每种语言一个 HTML 页面，加上 React 应用、Pagefind 搜索索引、`llms.txt` 和每篇笔记的 `.md` 镜像。构建过程见 [[architecture]]，部署见 [[deploy]]。
+生成静态网站，默认输出到 `.clio/site`。输出包括每篇笔记每种语言一个 HTML 页面和一份 `.md` 原文，首页、图谱、浏览、标签、健康和待写页面，每个标签一个页面（`tags/<tag>.html`，嵌套标签的上级也有），`404.html`，`.nojekyll`，React 应用，Pagefind 搜索索引，`llms.txt`，以及 `_assets/` 下笔记引用的图片。`clio.toml` 设置了 `[site] url` 时，还生成 `sitemap.xml` 和 `robots.txt`。构建过程见 [[architecture]]，输出目录的结构和部署见 [[deploy]]。
 
 | 参数 | 默认 | 作用 |
 |---|---|---|
 | `--out` | `.clio/site` | 输出目录 |
-| `--base` | `clio.toml` 的 `base` | 网站所在的 URL 路径，例如 GitHub Pages 项目站点用 `/kb/` |
+| `--base` | `clio.toml` 的 `base` | 网站所在的 URL 路径，例如 `/kb/` |
+| `--no-search` | | 不生成搜索索引，构建更快 |
+| `--no-cache` | | 不读取也不写入构建缓存 |
+| `--json` | | 输出一个 JSON 对象，结构见 [[#JSON 输出]] |
+| `--strict` | | 知识库有错误时退出码为 1；不加时有错误也照常构建，退出码为 0 |
+
+构建前会先删除输出目录。所以 `clio build` 拒绝输出到知识库目录本身、它的上级目录，或任何含有 `clio.toml` 的目录。
+
+代码高亮、公式和图表的渲染结果按内容缓存在 `node_modules/.cache/clio/render.json`；项目里没有 `node_modules` 时放在 `.clio/cache/`。没有改动的块不会重新渲染。图谱布局也存在同一目录（`layout.json`），下次构建从上次的位置开始计算，节点的位置保持稳定。
 
 ```text
-$ clio build --base /kb/
-206 notes · 2 languages · 412 pages
-search index: 412 pages, 2 languages
-built .clio/site in 3.8 s
+$ clio build --dir docs
+vault: 0.0 s
+layout: 21 nodes in 2 ms (warm start)
+pages (zh): 0.0 s
+pages (en): 0.0 s
+assets, app, llms.txt: 0.1 s
+search index: 0.6 s
+built 40 pages (20 notes) → docs/.clio/site in 0.8 s
+  0 images · render cache 416 hit / 0 new · 0 errors, 10 warnings (clio check --dir docs)
 ```
+
+前面几行是各阶段的用时：读取和检查知识库（`vault`）、图谱布局（`layout`，给出节点数；`(warm start)` 表示从上次的布局开始计算）、每种语言的页面、静态资源和 `llms.txt`、搜索索引。`built` 一行是页面数（笔记数乘以语言数）、笔记数、输出目录和总用时。最后一行是复制的图片数、渲染缓存的命中和新增数，以及知识库的错误和警告数；有错误或警告时，括号里给出查看详情的命令。
 
 ### clio dev
 
 ```text
-clio dev [--port 4321]
+clio dev [--port 4321] [--search]
 ```
 
-构建一次，启动本地服务，监视文件变化：改动后只重新解析变化的笔记，重建网站并刷新浏览器。
+构建一次，启动本地服务，然后监视文件。输出写到 `.clio/dev`，和 `clio build` 的 `.clio/site` 分开。默认不生成搜索索引，加 `--search` 才生成。
+
+监视的文件：笔记、`clio.toml`、`clio.config.*`、`theme/` 和图片。笔记改动后只重新解析变化的笔记；`clio.toml` 或 `clio.config.*` 改动后重新读取配置。然后重建网站，已打开的页面自动刷新。
 
 ```text
 $ clio dev
-built 206 notes in 3.6 s
-serving http://localhost:4321  (watching for changes)
-changed notes/concepts/pratt-parser.md → rebuilt in 180 ms
+vault: 0.0 s
+layout: 11 nodes in 4 ms
+pages (zh): 0.2 s
+assets, app, llms.txt: 0.1 s
+built 8 pages (8 notes) → .clio/dev in 0.2 s
+  0 images · render cache 0 hit / 1 new · 0 errors, 3 warnings (clio check --dir .)
+dev server at http://localhost:4321/ (watching .)
+vault: 0.0 s
+layout: 11 nodes in 1 ms (warm start)
+pages (zh): 0.0 s
+assets, app, llms.txt: 0.0 s
+built 8 pages (8 notes) → .clio/dev in 0.1 s
+  0 images · render cache 1 hit / 0 new · 0 errors, 3 warnings (clio check --dir .)
 ```
+
+每次重建打印的内容和 `clio build` 相同。
 
 ### clio serve
 
 ```text
-clio serve [--port 4321]
+clio serve [--port 4321] [--out DIR]
 ```
 
-只提供上一次 `clio build` 的输出，不构建也不监视文件。用来在本地检查准备部署的结果。
+只提供上一次 `clio build` 的输出（默认 `.clio/site`，或 `--out` 指定的目录），不构建也不监视文件。用来在本地检查准备部署的结果。网址的处理和静态托管相同：`/a` 依次查找 `a`、`a.html`、`a/index.html`，都没有时返回 `404.html`。还没有构建时报错退出。
 
 ```text
 $ clio serve --port 8080
-serving .clio/site at http://localhost:8080
+serving .clio/site at http://localhost:8080/
 ```
 
 ## 检查与查询
@@ -416,13 +514,22 @@ Clusters
 clio mv <old-id> <new-id>
 ```
 
-重命名笔记：改文件名（所有语言版本一起改），并改写整个知识库里指向它的每个链接，包括 `[[old-id|文字]]`、`[[rel::old-id]]`、`![[old-id#章节]]` 和 frontmatter 里的 `rel`。只是移动文件到别的目录时不需要这个命令，链接按 id 解析，不受路径影响。
+重命名笔记：改文件名（所有语言版本一起改），并改写整个知识库里指向它的内容：
+
+- 各种形式的 `[[ ]]` 链接：`[[old-id]]`、`[[old-id|文字]]`、`[[rel::old-id]]`、`[[old-id#章节]]`、`[[old-id^块id]]`；
+- 嵌入：`![[old-id]]`、`![[old-id#章节]]`；
+- frontmatter 里 `rel:` 的条目，以及这篇笔记自己的 `id:`；
+- 指向被改名文件的相对 Markdown 链接，例如 `[文字](old-id.md)`。
+
+代码块和行内代码里的内容不改。改名前和原文对应的译文（`translation-of-hash` 与原文一致），改名后会重新写入哈希，不会因为链接改写而变成过期。
+
+只是移动文件到别的目录时不需要这个命令，链接按 id 解析，不受路径影响。
 
 ```text
 $ clio mv pratt pratt-parser
 renamed notes/concepts/pratt.md → notes/concepts/pratt-parser.md
 renamed notes/concepts/pratt.en.md → notes/concepts/pratt-parser.en.md
-rewrote 7 links in 5 files
+rewrote 8 links in 4 files
 ```
 
 `<new-id>` 已被占用时报错退出，不改动任何文件。
@@ -430,19 +537,37 @@ rewrote 7 links in 5 files
 ### clio translate-status
 
 ```text
-clio translate-status
+clio translate-status [--lang xx] [--json] [--pin id1,id2]
 ```
 
-列出缺失的翻译和过期的翻译。过期指译文的 `translation-of-hash` 与原文当前的哈希不同。每条都给出应写入的哈希。工作流见 [[multilingual]]。
+按三组列出需要处理的翻译：
+
+| 组 | 含义 |
+|---|---|
+| `missing` | 某种语言还没有这篇笔记的译文；列出原文路径和语言 |
+| `unpinned` | 译文没有写 `translation-of-hash` |
+| `stale` | 译文的 `translation-of-hash` 与原文当前的哈希不同 |
+
+`unpinned` 和 `stale` 的每一条都给出应写入的哈希。最后一行是已经对应原文的译文数量。`--lang` 只看一种语言。工作流见 [[multilingual]]。
 
 ```text
 $ clio translate-status
 missing (2)
-  notes/concepts/tokenizer.md          en
-  notes/topics/compilers.md            en
+  notes/topics/compilers.md                en
+  notes/concepts/tokenizer.md              en
 stale (1)
-  notes/concepts/pratt-parser.en.md    translation-of-hash: "9c1e0b7a4d2f"
+  notes/concepts/pratt-parser.en.md        translation-of-hash: "95e9d39fdb50"
+1 current · after updating a translation: clio translate-status --pin <id>
 ```
+
+`--pin` 把原文当前的哈希写进列出的笔记的译文：默认是所有语言的译文，加 `--lang` 时只写这种语言。已经对应原文的译文不改。
+
+```text
+$ clio translate-status --pin pratt-parser
+pinned notes/concepts/pratt-parser.en.md → 95e9d39fdb50
+```
+
+`--pin` 只记录「译文已经对应这一版原文」，不检查译文的内容，所以要在更新完译文之后再运行。
 
 ## Agent 接口
 
@@ -452,7 +577,17 @@ stale (1)
 clio mcp [--dir <vault>]
 ```
 
-在 stdio 上运行一个 MCP（Model Context Protocol）服务，把 `search`、`show`、`backlinks`、`context` 和 `check` 提供为工具，参数和 JSON 结果与同名命令一致。日志写到 stderr。
+在 stdio 上运行一个 MCP（Model Context Protocol）服务，提供五个工具：
+
+| 工具 | 参数 | 结果 |
+|---|---|---|
+| `search` | `query`，可选 `limit`、`lang` | 与 `clio search --json` 相同 |
+| `show` | `id`，可选 `lang` | 与 `clio show --json` 相同 |
+| `backlinks` | `id`，可选 `lang` | 与 `clio backlinks --json` 相同 |
+| `context` | `id`，可选 `hops`、`lang` | 与 `clio context` 相同的 Markdown |
+| `check` | 可选 `all`：为 true 时包含提示 | 与 `clio check --json` 相同 |
+
+每次调用工具之前，服务会重新读取改动过的文件，所以 Agent 在两次调用之间编辑的笔记，下一次调用就能看到。日志写到 stderr。
 
 在 Claude Code 中注册：
 
@@ -486,5 +621,23 @@ claude mcp add clio -- clio mcp --dir ~/my-kb
 **show** 输出一个对象，描述所选语言下的这篇笔记：`id`、`key`（规范化的 id）、`lang`（请求的语言）、`noteLang`（实际使用的版本的语言）、`fallback`（没有该语言版本、用了默认语言时为 true）、`path`、`title`、`type`、`summary`、`tags`、`aliases`、`status`、`created`、`updated`、`reviewed`、`words`、`url`；`outline` 是二到四级标题（`depth`、`text`、`slug`）；`relations` 是类型关系，按标签分组，每组有 `label`、`direction`（`out` 或 `in`）和 `items`；`backlinks` 是普通链接的来源，每项带链接所在的句子 `context`；`local` 是局部图谱（`nodes` 和 `edges`）；`translations` 列出每种语言的 `lang`、`url`、`exists` 和 `title`；`hash` 是这个文件的内容哈希（写译文时填进 `translation-of-hash`），`sourceHash` 是默认语言版本的哈希，`translationOfHash` 是这个文件声明的值；还有 `rank`（PageRank）、`cluster`（聚类编号）和 `data`（全部 frontmatter 字段）。渲染好的 HTML 不包括在内。
 
 **context** 输出一个对象：`note` 是这篇笔记（`id`、`title`、`type`、`path`、`summary`、`tags`、`aliases`、`text`、`headings`，以及源文件全文 `source`）；`relations` 是直接相连的边，每项有对方的 `id`、边的 `kind`（关系名，或 `link`、`embed`）、`direction` 和链接所在的句子 `context`；`neighbours` 是 `--hops` 范围内的笔记，每项有 `id`、`title`、`type`、`summary`、`path`、`tags` 和 `hop`（距离）；`wanted` 是这篇笔记链接到但还不存在的笔记名。
+
+**translate-status** 输出一个数组，每项是一份需要处理的译文：`id`、`source`（原文路径）、`lang`、`status`（`missing`、`unpinned` 或 `stale`）、`path`（译文路径，缺失时为 `null`）、`hash`（原文当前的哈希）和 `translationOfHash`（译文声明的值，没有时为 `null`）。
+
+```json
+[
+  {
+    "id": "pratt-parser",
+    "source": "notes/concepts/pratt-parser.md",
+    "lang": "en",
+    "status": "stale",
+    "path": "notes/concepts/pratt-parser.en.md",
+    "hash": "95e9d39fdb50",
+    "translationOfHash": "0c06ce7df7c8"
+  }
+]
+```
+
+**build** 输出一个对象：`out`（输出目录的绝对路径）、`pages`、`notes`、`assets`（复制的图片数）、`errors`、`warnings`、`ms`（用时）和 `cache`（`hits` 和 `misses`）。
 
 其余命令：`backlinks` 输出 `{ id, relations, backlinks }`，其中 `relations` 只含指向这篇笔记的方向；`resolve` 输出 `{ id, path }`，没有匹配时输出 `null`；`stats` 输出 `{ stats, types, clusters, lint }`。

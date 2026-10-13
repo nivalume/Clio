@@ -36,7 +36,7 @@ Clio 把这个模式里的每一部分落到具体的文件和命令上：
 
 ## Agent Skill
 
-`clio new site` 和 `clio init` 会在项目里安装一个 Agent Skill：`skills/clio/SKILL.md`，按 Agent Skills 格式编写。它告诉 Agent：
+`clio new site` 和 `clio init` 会在项目里安装一个 Agent Skill：`skills/clio/SKILL.md`，按 Agent Skills 格式编写。Skill 目录再链接为 `.claude/skills/clio` 和 `.agents/skills/clio`，Claude Code 和 Codex 等工具在这两个位置自动发现它；不能建符号链接的系统上改为复制。它告诉 Agent：
 
 - 什么时候用这个 Skill：收录资料、回答关于知识库的问题、维护或翻译笔记；
 - 下面四个工作流的每一步；
@@ -146,8 +146,8 @@ sequenceDiagram
 1. `clio search "<问题里的关键词>" --json` 找到候选笔记，先看摘要。
 2. 对最相关的一两篇运行 `clio context <id> --hops 2`，读全文和邻居。
 3. 回答时链接到依据的笔记，让人能核对。
-4. 回答有长期价值时（例如一个比较或一段分析），用 `clio new question "<问题>"` 归档到 `notes/questions/`，链接到依据的笔记，并在相关的主题笔记里加上链接。
-5. `clio log query "<问题>"` 记一笔。
+4. 回答有长期价值时（例如一个比较或一段分析），用 `clio new question "<问题>" --id <英文 id>` 归档到 `notes/questions/`，链接到依据的笔记，并在相关的主题笔记里加上链接。不加 `--id` 时 id 由标题生成，中文标题得到中文 id。
+5. `clio log query "<问题>"` 记一笔，用 `--message` 列出新建和更新的笔记。
 
 第 4 步是这个模式的关键：好的回答不留在聊天记录里，而是回到知识库，下次提问时可以直接用。
 
@@ -171,12 +171,12 @@ clio check --json --all
 
 ## 翻译
 
-1. `clio translate-status --json` 列出缺失和过期的译文。
-2. 逐篇翻译或对照原文的改动更新译文。
-3. 把 `translation-of-hash` 改成清单里给出的哈希。
+1. `clio translate-status --json` 列出缺失、未固定和过期的译文。
+2. 缺失的译文用 `clio new <类型> "<译名>" --id <id> --lang en` 新建：它把原文复制成 `<id>.en.md`，再逐段翻译。过期的译文对照原文的改动更新。
+3. `clio translate-status --pin <id>` 把原文当前的哈希写进译文的 `translation-of-hash`。几篇一起时用逗号分隔：`--pin a,b,c`。
 4. `clio check` 确认没有 `translation-stale`。
 
-文件命名和哈希的规则见 [[multilingual]]。
+哈希也可以手工写进 `translation-of-hash`，值就是清单里给出的哈希。文件命名和哈希的规则见 [[multilingual]]。
 
 ## 给 Agent 的命令
 
@@ -240,7 +240,7 @@ Agent 按 `code` 决定怎么处理，按 `path` 和 `line` 定位。每个检�
 
 ### clio mcp
 
-在 stdio 上运行 MCP 服务，把 `search`、`show`、`backlinks`、`context` 和 `check` 提供为工具。适合不方便执行命令行的客户端。在 Claude Code 中注册：
+在 stdio 上运行 MCP 服务，把 `search`、`show`、`backlinks`、`context` 和 `check` 提供为工具。适合不方便执行命令行的客户端。每次调用之前，服务会重新读取改动过的文件，所以 Agent 刚编辑的笔记，下一次调用就能看到。在 Claude Code 中注册：
 
 ```bash
 claude mcp add clio -- clio mcp --dir ~/my-kb
@@ -261,7 +261,7 @@ claude mcp add clio -- clio mcp --dir ~/my-kb
 - 归档为 notes/questions/self-attention-complexity.md
 ```
 
-标题行由 `clio log <操作> <标题>` 写入，`clio ingest` 自动写一条 `ingest`。常用的操作名是 `ingest`、`query`、`lint`、`edit`。只在末尾追加，不改旧记录：日志是知识库的历史，Agent 开始工作前读最近几条，就知道上次做到哪里：
+标题行由 `clio log <操作> <标题>` 写入，`--message` 的每一行写在标题下面；`clio ingest` 自动写一条 `ingest`，下面列出原件和新建的来源笔记。常用的操作名是 `ingest`、`query`、`lint`、`edit`。只在末尾追加，不改旧记录：日志是知识库的历史，Agent 开始工作前读最近几条，就知道上次做到哪里：
 
 ```bash
 grep "^## \[" log.md | tail -5

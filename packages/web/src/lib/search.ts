@@ -1,5 +1,6 @@
 import { boot } from "./boot";
 import { getManifest } from "./data";
+import { href } from "./router";
 
 export interface Hit {
   id: string;
@@ -54,7 +55,7 @@ export async function titleSearch(lang: string, q: string, limit = 8): Promise<H
     id: m.id[i],
     title: m.title[i],
     type: m.types[m.type[i]],
-    url: m.url[i],
+    url: href.note(lang, m.id[i]),
     excerpt: m.summary[i],
     via: "title" as const,
   }));
