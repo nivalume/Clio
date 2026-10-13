@@ -1,0 +1,15 @@
+[package]
+name = "clio-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Clio knowledge-base engine: parse Clio Markdown, resolve links, build the graph."
+
+[dependencies]
+comrak = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde-saphyr = { workspace = true }
+libm = { workspace = true }

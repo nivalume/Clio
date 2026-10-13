@@ -1,0 +1,27 @@
+{
+  "name": "clio",
+  "version": "0.1.0",
+  "description": "A knowledge base for the agent era: Markdown with typed links, a Rust engine compiled to WebAssembly, a Bun CLI and a static site with a knowledge graph.",
+  "license": "MIT",
+  "type": "module",
+  "repository": { "type": "git", "url": "https://github.com/nivalume/Clio.git" },
+  "bin": { "clio": "packages/clio/bin/clio.ts" },
+  "workspaces": ["packages/web"],
+  "scripts": {
+    "build:wasm": "bun scripts/build-wasm.ts",
+    "build:web": "bun scripts/build-web.ts",
+    "build:docs": "bun scripts/build-docs.ts",
+    "test": "bun test packages/clio",
+    "check": "bun packages/clio/bin/clio.ts check docs"
+  },
+  "dependencies": {
+    "katex": "0.16.11",
+    "pagefind": "1.5.2",
+    "shiki": "1.29.2"
+  },
+  "devDependencies": {
+    "@types/bun": "1.2.4",
+    "typescript": "5.6.3"
+  },
+  "engines": { "bun": ">=1.2" }
+}
