@@ -2,7 +2,8 @@
 import { existsSync, statSync, watch } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { num, str, type Args } from "../args";
-import { ignored, Vault } from "../vault";
+import { loadSettings, normaliseBase } from "../config";
+import { findRoot, ignored, Vault } from "../vault";
 import { buildSite, type BuildResult } from "../site/build";
 import { c, fail, print, printJson } from "../ui";
 
@@ -83,11 +84,15 @@ function serveDir(dir: string, port: number, base: string, inject = ""): ReturnT
   return listen();
 }
 
-export async function serve(vault: Vault, args: Args): Promise<number> {
-  const dir = resolve(str(args.flags, "out") ?? join(vault.root, ".clio/site"));
+/** Serves the last build; reads only the settings, not the notes. */
+export async function serve(args: Args): Promise<number> {
+  const root = findRoot(str(args.flags, "dir", process.cwd())!);
+  const settings = await loadSettings(root);
+  const base = normaliseBase(str(args.flags, "base") ?? settings.engine.base);
+  const dir = resolve(str(args.flags, "out") ?? join(root, ".clio/site"));
   if (!existsSync(join(dir, "index.html"))) fail(`nothing built in ${dir}; run clio build first`);
-  const server = serveDir(dir, num(args.flags, "port", 4321), vault.settings.engine.base);
-  print(`serving ${relative(process.cwd(), dir) || "."} at ${c.cyan(`http://localhost:${server.port}${vault.settings.engine.base}`)}`);
+  const server = serveDir(dir, num(args.flags, "port", 4321), base);
+  print(`serving ${relative(process.cwd(), dir) || "."} at ${c.cyan(`http://localhost:${server.port}${base}`)}`);
   await new Promise(() => {});
   return 0;
 }

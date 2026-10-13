@@ -30,13 +30,13 @@ export const VAULT_COMMANDS: Record<string, { run: Handler; help: string }> = {
   mcp: { run: mcp, help: "MCP server on stdio: search, show, backlinks, context, check" },
   "translate-status": { run: translateStatus, help: "missing and stale translations; --pin <id,…> records the current source hash" },
   build: { run: site.build, help: "write the static site to .clio/site (--out DIR, --base /path/, --no-search)" },
-  serve: { run: site.serve, help: "serve the last build (--port 4321)" },
   dev: { run: site.dev, help: "build, serve and rebuild on change (--port 4321, --search)" },
 };
 
 /** Commands that run without an opened vault. */
 export const PLAIN_COMMANDS: Record<string, { run: (args: Args) => Promise<number>; help: string }> = {
   "new site": { run: project.newSite, help: "create a project: clio new site <dir> [--starter llm-wiki|docs|blank] [--locales zh,en] [--title T]" },
+  serve: { run: site.serve, help: "serve the last build (--port 4321)" },
   init: { run: project.init, help: "set up clio.toml, AGENTS.md and the agent skill here (--adopt for an Obsidian vault)" },
 };
 

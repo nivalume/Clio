@@ -237,7 +237,10 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
 
     // Nodes. Far out, many nodes: small squares batched by colour, no outlines.
     const stroke = 1.5 / Math.max(t.k, 0.6);
-    const coarse = data.nodes.length > 2000 && t.k < 0.6;
+    // Coarse mode when many nodes are on screen at once or the view is far out.
+    let onScreen = 0;
+    if (data.nodes.length > 2000) for (let i = 0; i < data.nodes.length; i++) if (visible[i] && inView(i)) onScreen++;
+    const coarse = data.nodes.length > 2000 && (t.k < 0.6 || onScreen > 2500);
     if (coarse) {
       const byColor = new Map<string, number[]>();
       for (let i = 0; i < data.nodes.length; i++) {
@@ -256,7 +259,8 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
           for (const i of list) {
             if (dim && near.has(i) === dimmed) continue;
             if (!dim && dimmed) continue;
-            const s = Math.max(layout.r[i], 1.6 / t.k);
+            // Half-size between 1.3 and 4 screen pixels, larger for higher-ranked notes.
+            const s = Math.min(4, Math.max(1.3, layout.r[i] * 0.35 * t.k)) / t.k;
             ctx.rect(layout.x[i] - s, layout.y[i] - s, 2 * s, 2 * s);
           }
           ctx.fill();
@@ -447,11 +451,28 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    for (const i of idx) {
-      minX = Math.min(minX, layout.x[i] - layout.r[i]);
-      maxX = Math.max(maxX, layout.x[i] + layout.r[i]);
-      minY = Math.min(minY, layout.y[i] - layout.r[i]);
-      maxY = Math.max(maxY, layout.y[i] + layout.r[i]);
+    if (idx.length > 200) {
+      // Large graphs: fit the middle 96% so a few far-off isolated notes do not shrink the rest.
+      const xs = idx.map((i) => layout.x[i]).sort((a, b) => a - b);
+      const ys = idx.map((i) => layout.y[i]).sort((a, b) => a - b);
+      const q = (v: number[], f: number) => v[Math.min(v.length - 1, Math.max(0, Math.floor(f * (v.length - 1))))];
+      minX = q(xs, 0.02);
+      maxX = q(xs, 0.98);
+      minY = q(ys, 0.02);
+      maxY = q(ys, 0.98);
+      const padX = (maxX - minX) * 0.06;
+      const padY = (maxY - minY) * 0.06;
+      minX -= padX;
+      maxX += padX;
+      minY -= padY;
+      maxY += padY;
+    } else {
+      for (const i of idx) {
+        minX = Math.min(minX, layout.x[i] - layout.r[i]);
+        maxX = Math.max(maxX, layout.x[i] + layout.r[i]);
+        minY = Math.min(minY, layout.y[i] - layout.r[i]);
+        maxY = Math.max(maxY, layout.y[i] + layout.r[i]);
+      }
     }
     const { w, h } = size.current;
     const k = Math.min(2.5, 0.88 * Math.min(w / Math.max(maxX - minX, 1), h / Math.max(maxY - minY, 1)));
