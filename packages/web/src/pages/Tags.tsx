@@ -71,11 +71,11 @@ export function TagsPage({ lang, tag }: { lang: string; tag: string | null }) {
   if (!m) return <div className="loading" aria-busy="true" />;
   return (
     <div className="split-page">
-      <Window icon="#" iconColor="var(--orange)" title={t.tags} subtitle={String(m.tags.length)}>
+      <Window icon="#" iconColor="var(--sun)" title={t.tags} subtitle={String(m.tags.length)}>
         <div className="pad">{nodes.length ? <TagTree nodes={nodes} lang={lang} current={tag} /> : <p className="muted">—</p>}</div>
       </Window>
       {tag ? (
-        <Window icon="#" iconColor="var(--yellow)" title={`#${tag}`} subtitle={`${notes.length} ${t.notes}`}>
+        <Window icon="#" iconColor="var(--sun)" title={`#${tag}`} subtitle={`${notes.length} ${t.notes}`}>
           <div className="chat">
             {notes.map((i) => (
               <a key={m.id[i]} className="msg" href={href.note(lang, m.id[i])}>

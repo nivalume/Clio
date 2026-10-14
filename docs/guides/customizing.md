@@ -126,12 +126,12 @@ ignore = ["drafts/private", "**/*.excalidraw.md"]
 ```css title="theme/theme.css"
 :root {
   --paper: #f6f7f2;   /* 页面背景 */
-  --yellow: #9ad7ff;  /* 顶栏和选中状态 */
-  --pink: #ff9f43;    /* 主要按钮 */
+  --cobalt: #0b7a75;  /* 选中、当前项、焦点框 */
+  --tomato: #ff9f43;  /* 主要按钮 */
 }
 ```
 
-变量按默认颜色命名（`--yellow` 默认是黄色的顶栏），换成别的颜色后用途不变。深色主题的写法和全部变量见 [[config#主题]]，这些变量背后的设计见 [[design]]。
+颜色变量按默认颜色命名（`--cobalt` 是钴蓝，`--tomato` 是番茄红），换成别的颜色后用途不变：`--cobalt` 仍然标出选中和当前项，`--tomato` 仍然是主要按钮。`--cobalt` 在深色主题里另有一个更亮的值，要连深色一起改，按 [[config#主题]] 的写法再覆盖一次。深色主题的写法和全部变量见 [[config#主题]]，这些变量背后的设计见 [[design]]。
 
 插件生成的 HTML 也可以在这里加样式，见下一节。
 
@@ -178,7 +178,7 @@ export default {
 ```css title="theme/theme.css"
 .timeline { list-style: none; padding-left: 1rem; border-left: 2px solid var(--ink); }
 .timeline li { margin: 0 0 0.5rem; }
-.timeline time { font-family: var(--font-mono); background: var(--yellow); padding: 0 0.25rem; }
+.timeline time { font-family: var(--font-mono); background: var(--sun); padding: 0 0.25rem; }
 ```
 
 要点：

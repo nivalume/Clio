@@ -1,35 +1,54 @@
 /*
- * Design tokens. Brutalist + Y2K web-chat: cream paper, 2px ink outlines,
- * hard offset shadows, flat candy colours, Space Grotesk for text and Space
- * Mono for code and metadata. Things drawn ON a candy colour always use
- * --on-candy (dark ink) in both themes.
+ * Design tokens. Neo-brutalist: 2px ink outlines, hard offset shadows, flat
+ * colour, folder-tab panels. Clio's palette: warm grey paper, an ink top bar,
+ * cobalt for selection and focus, tomato for the main actions, and a set of
+ * type colours. Anything drawn ON a type colour uses --on-candy (dark ink) in
+ * both themes. Contrast (WCAG): ink/paper 15.9:1, muted/paper-2 4.9:1,
+ * white/cobalt 5.1:1, ink/tomato 5.9:1, ink/periwinkle 6.8:1, white/error 5.0:1;
+ * dark: ink/card 14.8:1, cobalt-text/card 6.7:1, ink/cobalt 6.2:1.
  */
 :root {
   color-scheme: light;
-  --paper: #fffaef;
-  --paper-2: #fbf1da;
+  --paper: #f2f0ea;
+  --paper-2: #e9e6dd;
   --card: #ffffff;
-  --ink: #141111;
-  --ink-2: #3b3534;
-  --muted: #6b6461;
-  --line: #141111;
-  --line-soft: #e4dccb;
-  --stone: #f1ebdd;
-  --on-candy: #141111;
+  --ink: #15151c;
+  --ink-2: #3a3a47;
+  --muted: #61616f;
+  --line: #15151c;
+  --line-soft: #dcd8cc;
+  --stone: #e6e3da;
+  --on-candy: #15151c;
 
-  --yellow: #ffd440;
-  --lavender: #bbafe6;
-  --pink: #fe7da8;
-  --cyan: #27ccf3;
-  --orange: #f8a16f;
-  --lime: #a9d877;
-  --red: #f97264;
-  --highlight: #ffe58f;
-  --code-link: #ece7fb;
+  /* Top bar: ink in both themes. */
+  --bar: #15151c;
+  --on-bar: #f2f0ea;
+  --on-bar-muted: #a9a7b8;
+
+  /* Cobalt: selection, focus, current item. --cobalt-text is the shade for text on paper. */
+  --cobalt: #3a5cff;
+  --cobalt-text: #2d4de6;
+  --cobalt-tint: #e6ebff;
+  --on-cobalt: #ffffff;
+  /* Tomato: the main action on a screen. */
+  --tomato: #ff5a3c;
+
+  /* Note type colours. Fixed in both themes; --periwinkle is the cobalt that
+     carries ink text, --pebble the neutral. */
+  --periwinkle: #8197ff;
+  --mint: #3fcf9a;
+  --lilac: #b69cff;
+  --sun: #ffc93d;
+  --sky: #7fd4ff;
+  --pebble: #dad6ca;
+
+  --error: #d6293e;
+  --highlight: #fff0a8;
 
   --shadow-sm: 2px 2px 0 var(--ink);
   --shadow: 4px 4px 0 var(--ink);
   --shadow-lg: 6px 6px 0 var(--ink);
+  --shadow-accent: 4px 4px 0 var(--cobalt);
   --dots: radial-gradient(var(--ink) 1.15px, transparent 1.45px);
   --grid-dots: radial-gradient(var(--line-soft) 1.2px, transparent 1.4px);
 
@@ -37,40 +56,46 @@
     system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "PingFang SC", "Noto Sans SC", monospace;
 
-  --radius-window: 10px;
+  --radius: 8px;
   --topbar-h: 60px;
-
-  --stone-2: #d9d2c3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --paper: #141111;
-    --paper-2: #1b1716;
-    --card: #1f1a19;
-    --ink: #fffaef;
-    --ink-2: #e2d9c9;
-    --muted: #aaa194;
-    --line: #fffaef;
-    --line-soft: #3a3330;
-    --stone: #2b2523;
-    --highlight: #5b4a12;
-    --code-link: #2f2a44;
+    --paper: #121218;
+    --paper-2: #181820;
+    --card: #1c1c25;
+    --ink: #f2f0ea;
+    --ink-2: #cfccd8;
+    --muted: #9a98a8;
+    --line: #f2f0ea;
+    --line-soft: #33333f;
+    --stone: #26262f;
+    --bar: #0b0b10;
+    --cobalt: #7088ff;
+    --cobalt-text: #8a9cff;
+    --cobalt-tint: #232a4d;
+    --on-cobalt: #0b0b10;
+    --highlight: #4a3d0a;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #141111;
-  --paper-2: #1b1716;
-  --card: #1f1a19;
-  --ink: #fffaef;
-  --ink-2: #e2d9c9;
-  --muted: #aaa194;
-  --line: #fffaef;
-  --line-soft: #3a3330;
-  --stone: #2b2523;
-  --highlight: #5b4a12;
-  --code-link: #2f2a44;
+  --paper: #121218;
+  --paper-2: #181820;
+  --card: #1c1c25;
+  --ink: #f2f0ea;
+  --ink-2: #cfccd8;
+  --muted: #9a98a8;
+  --line: #f2f0ea;
+  --line-soft: #33333f;
+  --stone: #26262f;
+  --bar: #0b0b10;
+  --cobalt: #7088ff;
+  --cobalt-text: #8a9cff;
+  --cobalt-tint: #232a4d;
+  --on-cobalt: #0b0b10;
+  --highlight: #4a3d0a;
 }

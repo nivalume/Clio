@@ -91,11 +91,9 @@ export function CommandPalette({ lang, onClose }: { lang: string; onClose: () =>
   return (
     <div className="palette-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="palette" role="dialog" aria-modal="true" aria-label={t.search} onKeyDown={onKey}>
-        <Window
-          icon="⌕"
-          iconColor="var(--pink)"
-          className="palette__window"
-          title={
+        <Window icon="⌕" iconColor="var(--cobalt)" className="palette__window" title={t.search} tools={<span className="kbd">esc</span>}>
+          <div className="palette__search">
+            <span aria-hidden="true">⌕</span>
             <input
               ref={inputRef}
               value={query}
@@ -108,9 +106,7 @@ export function CommandPalette({ lang, onClose }: { lang: string; onClose: () =>
               autoComplete="off"
               spellCheck={false}
             />
-          }
-          tools={<span className="kbd">esc</span>}
-        >
+          </div>
           <div className="palette__label mono muted">{label}</div>
           <div className="palette__results chat" id="palette-results" role="listbox" ref={listRef}>
             {query.trim() && hits.length === 0 ? <div className="palette__empty">{t.noResults}</div> : null}

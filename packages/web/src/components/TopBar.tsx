@@ -78,7 +78,7 @@ export function TopBar({
           {theme === "dark" ? "☀" : "☾"}
         </button>
         {boot.repo ? (
-          <a className="btn btn--small btn--pink hide-narrow" href={boot.repo} target="_blank" rel="noreferrer">
+          <a className="btn btn--small btn--action hide-narrow" href={boot.repo} target="_blank" rel="noreferrer">
             GitHub ↗
           </a>
         ) : null}

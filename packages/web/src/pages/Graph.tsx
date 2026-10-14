@@ -110,18 +110,17 @@ export function GraphPage({ lang, focus, theme }: { lang: string; focus: string 
   return (
     <div className="graph-page">
       <Window
-        icon="◎"
-        iconColor="var(--cyan)"
-        title={t.graph}
-        subtitle={`${data.nodes.length} ${t.nodes} · ${data.edges.length} ${t.edges}`}
+        iconColor="var(--cobalt)"
+        title={t.view}
+        tabs={[
+          { id: "graph", label: t.graph },
+          { id: "table", label: t.table },
+        ]}
+        active={view}
+        onTab={(id) => setView(id as "graph" | "table")}
         tools={
-          <span className="segmented" role="group" aria-label={t.view}>
-            <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>
-              {t.graph}
-            </button>
-            <button type="button" aria-pressed={view === "table"} onClick={() => setView("table")}>
-              {t.table}
-            </button>
+          <span className="mono muted graph-counts">
+            {data.nodes.length} {t.nodes} · {data.edges.length} {t.edges}
           </span>
         }
       >
@@ -185,7 +184,7 @@ export function GraphPage({ lang, focus, theme }: { lang: string; focus: string 
               <Window
                 className="graph-card"
                 icon="#"
-                iconColor={sel.wanted ? "var(--card)" : typeStyle(sel.type).color}
+                iconColor={sel.wanted ? "var(--pebble)" : typeStyle(sel.type).color}
                 title={sel.title}
                 tools={
                   <button type="button" className="btn btn--small btn--square" onClick={() => select(null)} aria-label={t.close}>
@@ -200,7 +199,7 @@ export function GraphPage({ lang, focus, theme }: { lang: string; focus: string 
                   </div>
                   {mi >= 0 && manifest!.summary[mi] ? <p>{manifest!.summary[mi]}</p> : null}
                   <div className="graph-card__actions">
-                    <button type="button" className="btn btn--small btn--pink" onClick={() => open(selected!)}>
+                    <button type="button" className="btn btn--small btn--action" onClick={() => open(selected!)}>
                       {t.open} →
                     </button>
                     <button type="button" className="btn btn--small" onClick={() => setCenterKey((k) => k + 1)}>

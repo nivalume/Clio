@@ -24,24 +24,24 @@ const PIX = {
 };
 
 const KNOWN: Record<string, Omit<TypeStyle, "pixels">> = {
-  topic: { color: "var(--yellow)", shape: "star" },
-  guide: { color: "var(--yellow)", shape: "star" },
-  concept: { color: "var(--cyan)", shape: "circle" },
-  entity: { color: "var(--pink)", shape: "square" },
-  source: { color: "var(--lavender)", shape: "triangle" },
-  reference: { color: "var(--lavender)", shape: "square" },
-  question: { color: "var(--lime)", shape: "diamond" },
-  journal: { color: "var(--orange)", shape: "cross" },
-  note: { color: "var(--stone-2)", shape: "circle" },
+  topic: { color: "var(--periwinkle)", shape: "star" },
+  guide: { color: "var(--periwinkle)", shape: "star" },
+  concept: { color: "var(--sky)", shape: "circle" },
+  entity: { color: "var(--lilac)", shape: "square" },
+  source: { color: "var(--sun)", shape: "triangle" },
+  reference: { color: "var(--mint)", shape: "square" },
+  question: { color: "var(--tomato)", shape: "diamond" },
+  journal: { color: "var(--mint)", shape: "cross" },
+  note: { color: "var(--pebble)", shape: "circle" },
   wanted: { color: "transparent", shape: "circle" },
 };
 
 const EXTRA: Omit<TypeStyle, "pixels">[] = [
-  { color: "var(--orange)", shape: "wye" },
-  { color: "var(--pink)", shape: "diamond" },
-  { color: "var(--cyan)", shape: "triangle" },
-  { color: "var(--lime)", shape: "square" },
-  { color: "var(--lavender)", shape: "star" },
+  { color: "var(--tomato)", shape: "wye" },
+  { color: "var(--lilac)", shape: "diamond" },
+  { color: "var(--sky)", shape: "triangle" },
+  { color: "var(--mint)", shape: "square" },
+  { color: "var(--sun)", shape: "star" },
 ];
 
 const assigned = new Map<string, number>();

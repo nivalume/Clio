@@ -52,10 +52,15 @@ export function NotePage({ url, lang, hash, onLoaded }: { url: string; lang: str
     <Window
       as="article"
       className="page-window"
-      icon="#"
       iconColor={typeStyle(p.type).color}
-      title={<span className="mono">{p.id}</span>}
-      subtitle={p.path}
+      title={p.title}
+      tabs={[
+        { id: "body", label: t.noteTab },
+        { id: "relations", label: t.relations, count: relCount },
+        { id: "info", label: t.infoTab },
+      ]}
+      active={tab}
+      onTab={(id) => setTab(id as Tab)}
       tools={
         <>
           <a className="btn btn--small hide-narrow" href={href.graph(lang, p.id)}>
@@ -69,21 +74,10 @@ export function NotePage({ url, lang, hash, onLoaded }: { url: string; lang: str
         </>
       }
     >
-      <div className="tabs" role="tablist">
-        {(
-          [
-            ["body", t.noteTab, null],
-            ["relations", t.relations, relCount],
-            ["info", t.infoTab, null],
-          ] as [Tab, string, number | null][]
-        ).map(([id, label, count]) => (
-          <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>
-            {label}
-            {count != null ? <span className="mono muted">{count}</span> : null}
-          </button>
-        ))}
-      </div>
       <div className="page-meta">
+        <span className="page-meta__id mono" title={p.path}>
+          {p.id}
+        </span>
         <TypeTag type={p.type} />
         {p.status ? <span className="tag tag--mono">{p.status}</span> : null}
         {p.tags.map((tg) => (
@@ -103,7 +97,7 @@ export function NotePage({ url, lang, hash, onLoaded }: { url: string; lang: str
         ) : null}
       </div>
       {tab === "body" ? (
-        <div className="page-body">
+        <div className="page-body" role="tabpanel">
           {p.fallback ? (
             <div className="callout" data-callout="info">
               <div className="callout-title">
@@ -128,13 +122,13 @@ export function NotePage({ url, lang, hash, onLoaded }: { url: string; lang: str
           ) : null}
         </div>
       ) : tab === "relations" ? (
-        <div className="page-body relations-tab">
+        <div className="page-body relations-tab" role="tabpanel">
           <TypedRelations page={p} empty="—" />
           <h3>{t.backlinks}</h3>
           <Backlinks items={p.backlinks} empty="—" />
         </div>
       ) : (
-        <div className="page-body">
+        <div className="page-body" role="tabpanel">
           <dl className="info-grid">
             <dt>id</dt>
             <dd className="mono">{p.id}</dd>
@@ -175,23 +169,23 @@ export function NoteRail({ doc, lang }: { doc: NoteDoc | null; lang: string }) {
   const p = doc.page;
   return (
     <>
-      <Window icon="◎" iconColor="var(--cyan)" title={t.localGraph} subtitle={`${Math.max(0, p.local.nodes.length - 1)} ${t.neighbours}`}>
+      <Window icon="◎" iconColor="var(--sky)" title={t.localGraph} subtitle={`${Math.max(0, p.local.nodes.length - 1)} ${t.neighbours}`}>
         <LocalGraph page={p} />
-        <div className="window__foot">
+        <div className="panel__foot">
           <a href={href.graph(lang, p.id)}>{t.openGraph} →</a>
         </div>
       </Window>
       {p.outline.length ? (
-        <Window icon="≡" iconColor="var(--lime)" title={t.outline}>
+        <Window icon="≡" iconColor="var(--mint)" title={t.outline}>
           <Toc outline={p.outline} empty="—" />
         </Window>
       ) : null}
       {p.relations.length ? (
-        <Window icon="⇄" iconColor="var(--yellow)" title={t.relations}>
+        <Window icon="⇄" iconColor="var(--sun)" title={t.relations}>
           <TypedRelations page={p} empty="—" />
         </Window>
       ) : null}
-      <Window icon="↩" iconColor="var(--lavender)" title={t.backlinks} subtitle={String(p.backlinks.length)}>
+      <Window icon="↩" iconColor="var(--lilac)" title={t.backlinks} subtitle={String(p.backlinks.length)}>
         <Backlinks items={p.backlinks} empty="—" />
       </Window>
     </>

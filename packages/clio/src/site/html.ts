@@ -68,6 +68,7 @@ export function page(s: Shell): string {
 <title>${escape(s.title)}</title>
 ${s.description ? `<meta name="description" content="${escape(s.description)}">` : ""}
 <meta name="generator" content="Clio">
+<meta name="theme-color" content="#15151c">
 ${THEME_INIT}
 ${s.fonts ? FONTS : ""}
 <link rel="stylesheet" href="${s.base}_app/app.css">
@@ -113,4 +114,4 @@ export function langRedirect(base: string, locales: string[]): string {
   return `<script>(function(){var L=${jsonScript(locales)},b=${jsonScript(base)},p=null;try{var s=localStorage.getItem("clio-lang");if(L.indexOf(s)>=0)p=s}catch(e){}if(!p){var n=navigator.languages||[navigator.language];for(var i=0;i<n.length&&!p;i++){var c=String(n[i]).toLowerCase().split("-")[0];if(L.indexOf(c)>=0)p=c}}if(p&&p!==L[0])location.replace(b+p+"/"+location.search+location.hash)})()</script>`;
 }
 
-export const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" fill="#ffd440" stroke="#141111" stroke-width="2"/><path d="M9 8h14v4H13v8h10v4H9z" fill="#141111"/></svg>`;
+export const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="4" y="4" width="26" height="26" rx="6" fill="#ff5a3c"/><rect x="1" y="1" width="26" height="26" rx="6" fill="#3a5cff" stroke="#15151c" stroke-width="2"/><path d="M19.5 9.5a6.5 6.5 0 1 0 0 9" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/></svg>`;

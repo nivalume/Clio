@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [customizing, vault-layout]
 updated: 2026-10-13
-translation-of-hash: "4227d51fbcce"
+translation-of-hash: "b25cd4d02486"
 ---
 # Configuration
 
@@ -186,7 +186,7 @@ ignore = ["drafts/private"]
 
 ```css title="theme/theme.css"
 :root {
-  --yellow: #c6f432;     /* top bar and selection in neon green */
+  --tomato: #c6f432;     /* main buttons in neon green */
   --font-text: "Inter", "PingFang SC", system-ui, sans-serif;
 }
 
@@ -203,34 +203,35 @@ ignore = ["drafts/private"]
 }
 ```
 
-The dark theme has two triggers — the system preference and the reader's choice in the interface — so a dark override goes in both places, as above. A variable set only in `:root` applies to both themes unless the default styles redefine it for dark mode (as they do for paper, ink, lines and the other neutral colours).
+The dark theme has two triggers — the system preference and the reader's choice in the interface — so a dark override goes in both places, as above. A variable set only in `:root` applies to both themes unless the default styles redefine it for dark mode (as they do for paper, ink, lines and cobalt).
 
 | Variable | Light default | Used for |
 |---|---|---|
-| `--paper` | `#fffaef` | Page background (cream paper) |
-| `--paper-2` | `#fbf1da` | Secondary background: sidebars, table headers, code blocks |
-| `--card` | `#ffffff` | Cards and window bodies |
-| `--ink` | `#141111` | Text, outlines, hard shadows |
-| `--ink-2` | `#3b3534` | Secondary text |
-| `--muted` | `#6b6461` | Metadata, placeholders |
-| `--line` | `#141111` | 2px outlines |
-| `--line-soft` | `#e4dccb` | Dividers, dot grid |
-| `--stone` | `#f1ebdd` | Fill for uncategorised elements |
-| `--on-candy` | `#141111` | Text on candy colours; dark in both themes |
-| `--yellow` | `#ffd440` | Top bar, selected state |
-| `--pink` | `#fe7da8` | Primary action buttons, focus ring |
-| `--cyan` | `#27ccf3` | Type colour |
-| `--lime` | `#a9d877` | Type colour, success |
-| `--lavender` | `#bbafe6` | Type colour |
-| `--orange` | `#f8a16f` | Type colour |
-| `--red` | `#f97264` | Errors |
-| `--highlight` | `#ffe58f` | `==highlight==` and search hits |
-| `--code-link` | `#ece7fb` | Background of links inside inline code |
+| `--paper` | `#f2f0ea` | Page background (warm grey paper) |
+| `--paper-2` | `#e9e6dd` | Secondary background: sidebars, inactive tabs, the metadata strip |
+| `--card` | `#ffffff` | Cards and panel bodies |
+| `--ink` | `#15151c` | Text, outlines, hard shadows |
+| `--ink-2` | `#3a3a47` | Secondary text |
+| `--muted` | `#61616f` | Metadata, placeholder text |
+| `--line` | `#15151c` | 2px outlines |
+| `--line-soft` | `#dcd8cc` | Dividers, the dot grid |
+| `--stone` | `#e6e3da` | Neutral fill: inline code, lint notices |
+| `--on-candy` | `#15151c` | Text on type colours, dark in both themes |
+| `--bar` / `--on-bar` | `#15151c` / `#f2f0ea` | Top bar background and text |
+| `--cobalt` | `#3a5cff` | Main colour: selection, current item, focus ring, the strip on the active tab |
+| `--cobalt-text` | `#2d4de6` | Cobalt text on paper |
+| `--cobalt-tint` | `#e6ebff` | Table headers, selected rows, code links |
+| `--on-cobalt` | `#ffffff` | Text on cobalt (dark in the dark theme) |
+| `--tomato` | `#ff5a3c` | Main action buttons; the question type |
+| `--periwinkle` `--sky` `--lilac` `--sun` `--mint` `--pebble` | see [[design#Palette]] | Type colours |
+| `--error` | `#d6293e` | Lint errors |
+| `--highlight` | `#fff0a8` | `==highlight==` and search hits |
 | `--shadow-sm` / `--shadow` / `--shadow-lg` | 2 / 4 / 6px offset | Hard shadows |
-| `--dots` / `--grid-dots` | radial gradients | Halftone shadow and background dot grid |
-| `--font-text` | Space Grotesk, falling back to PingFang SC and Noto Sans SC for Chinese | Body text |
+| `--shadow-accent` | 4px offset | Cobalt hard shadow, used on link previews |
+| `--dots` / `--grid-dots` | Radial gradients | Halftone shadow and background dot grid |
+| `--font-text` | Space Grotesk, with PingFang SC and Noto Sans SC for Chinese | Body font |
 | `--font-mono` | Space Mono | Code and metadata |
-| `--radius-window` | `10px` | Window corner radius |
+| `--radius` | `8px` | Corner radius of panels and tabs |
 | `--topbar-h` | `60px` | Top bar height |
 
 The design decisions behind these variables are in [[design]].

@@ -47,7 +47,7 @@ export function Sidebar({ lang, current, onSearch }: { lang: string; current?: s
         {site?.hubs.length ? (
           <div className="channels__group">
             <div className="channels__heading">
-              <span className="swatch" style={{ background: "var(--yellow)" }} />
+              <span className="swatch" style={{ background: "var(--cobalt)" }} />
               <span>{t.hubs}</span>
               <span className="count">{site.hubs.length}</span>
             </div>
@@ -62,7 +62,7 @@ export function Sidebar({ lang, current, onSearch }: { lang: string; current?: s
         {site ? (
           <div className="channels__group">
             <div className="channels__heading">
-              <span className="swatch" style={{ background: "var(--cyan)" }} />
+              <span className="swatch" style={{ background: "var(--sky)" }} />
               <span>{t.types}</span>
             </div>
             {site.types

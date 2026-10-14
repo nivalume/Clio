@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [information-architecture, architecture]
 updated: 2026-10-13
-translation-of-hash: "4c0a9d84eb79"
+translation-of-hash: "35eb4eef5af3"
 ---
 # Knowledge graph
 
@@ -129,7 +129,7 @@ So consistent tagging gives readable cluster names. `clio stats` lists every clu
 
 The site's graph view draws all nodes and edges with a force-directed layout:
 
-- **Type is encoded twice, by colour and by shape**: each note type has its own candy colour and its own node shape, so readers with colour-vision deficiencies can still tell types apart; see [[design]];
+- **Type is encoded twice, by colour and by shape**: each note type has its own colour and its own node shape, so readers with colour-vision deficiencies can still tell types apart; see [[design]];
 - the larger a node, the higher its PageRank;
 - ghost nodes are drawn hollow and dashed;
 - the view can be filtered by type and cluster, and clicking a node opens the note.

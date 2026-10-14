@@ -43,10 +43,10 @@ export function HomePage({ lang, onSearch }: { lang: string; onSearch: () => voi
             <span className="kbd">/</span>
           </button>
           <div className="hero__cta">
-            <a className="btn btn--pink" href={href.explore(lang)}>
+            <a className="btn btn--action" href={href.explore(lang)}>
               {t.openExplore} →
             </a>
-            <a className="btn btn--yellow" href={href.graph(lang)}>
+            <a className="btn btn--accent" href={href.graph(lang)}>
               ◎ {t.graph}
             </a>
             <a className="btn" href={href.tags(lang)}>
@@ -122,7 +122,7 @@ export function HomePage({ lang, onSearch }: { lang: string; onSearch: () => voi
           <h2>{t.clusters}</h2>
           <div className="cluster-grid">
             {site.clusters.slice(0, 12).map((c) => (
-              <Window key={c.id} icon="◎" iconColor="var(--lavender)" title={c.label} subtitle={`${c.size} ${t.members}`}>
+              <Window key={c.id} icon="◎" iconColor="var(--lilac)" title={c.label} subtitle={`${c.size} ${t.members}`}>
                 <div className="chat">
                   {c.members.slice(0, 5).map((m) => (
                     <a key={m.id} className="msg msg--compact" href={m.url}>
@@ -135,7 +135,7 @@ export function HomePage({ lang, onSearch }: { lang: string; onSearch: () => voi
                     </a>
                   ))}
                 </div>
-                <div className="window__foot">
+                <div className="panel__foot">
                   <a href={href.graph(lang, c.members[0]?.id)}>{t.openGraph} →</a>
                 </div>
               </Window>
@@ -147,7 +147,7 @@ export function HomePage({ lang, onSearch }: { lang: string; onSearch: () => voi
       {site.recent.length ? (
         <section className="section">
           <h2>{t.recent}</h2>
-          <Window icon="↻" iconColor="var(--lime)" title={t.recent}>
+          <Window icon="↻" iconColor="var(--mint)" title={t.recent}>
             <div className="chat">
               {site.recent.map((r) => (
                 <a key={r.id} className="msg" href={r.url}>

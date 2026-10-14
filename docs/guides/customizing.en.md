@@ -6,7 +6,7 @@ rel:
   part-of: index
   see-also: [config, design]
 updated: 2026-10-13
-translation-of-hash: "3d6509e484d1"
+translation-of-hash: "7569e8854e0d"
 ---
 # Customizing
 
@@ -127,12 +127,12 @@ ignore = ["drafts/private", "**/*.excalidraw.md"]
 ```css title="theme/theme.css"
 :root {
   --paper: #f6f7f2;   /* page background */
-  --yellow: #9ad7ff;  /* top bar and selection */
-  --pink: #ff9f43;    /* primary buttons */
+  --cobalt: #0b7a75;  /* selection, current item, focus ring */
+  --tomato: #ff9f43;  /* primary buttons */
 }
 ```
 
-Variables are named after their default colours (`--yellow` is the yellow top bar); give them other colours and they keep their role. Dark-theme overrides and the full list of variables are in [[config#Theme]], and the design behind them in [[design]].
+Colour variables are named after their default colours (`--cobalt` is cobalt blue, `--tomato` is tomato red); give them other colours and they keep their role: `--cobalt` still marks the selection and the current item, `--tomato` is still the primary button. `--cobalt` has a separate, lighter value in the dark theme; to change that too, override it again as shown in [[config#Theme]]. Dark-theme overrides and the full list of variables are in [[config#Theme]], and the design behind them in [[design]].
 
 Styles for the HTML that plugins produce go here too; see the next section.
 
@@ -179,7 +179,7 @@ And the styles, in `theme/theme.css`:
 ```css title="theme/theme.css"
 .timeline { list-style: none; padding-left: 1rem; border-left: 2px solid var(--ink); }
 .timeline li { margin: 0 0 0.5rem; }
-.timeline time { font-family: var(--font-mono); background: var(--yellow); padding: 0 0.25rem; }
+.timeline time { font-family: var(--font-mono); background: var(--sun); padding: 0 0.25rem; }
 ```
 
 Points to note:

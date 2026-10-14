@@ -16,19 +16,19 @@ function load(): Promise<MermaidApi> {
       fontFamily: '"Space Grotesk", "PingFang SC", "Noto Sans SC", system-ui, sans-serif',
       themeVariables: {
         background: "#ffffff",
-        primaryColor: "#fffaef",
-        primaryTextColor: "#141111",
-        primaryBorderColor: "#141111",
-        secondaryColor: "#ffd440",
-        tertiaryColor: "#f1ebdd",
-        lineColor: "#141111",
-        textColor: "#141111",
-        noteBkgColor: "#ffe58f",
-        noteBorderColor: "#141111",
-        actorBkg: "#fffaef",
-        actorBorder: "#141111",
-        clusterBkg: "#fbf1da",
-        clusterBorder: "#141111",
+        primaryColor: "#f2f0ea",
+        primaryTextColor: "#15151c",
+        primaryBorderColor: "#15151c",
+        secondaryColor: "#e6ebff",
+        tertiaryColor: "#e6e3da",
+        lineColor: "#15151c",
+        textColor: "#15151c",
+        noteBkgColor: "#fff0a8",
+        noteBorderColor: "#15151c",
+        actorBkg: "#f2f0ea",
+        actorBorder: "#15151c",
+        clusterBkg: "#e9e6dd",
+        clusterBorder: "#15151c",
         edgeLabelBackground: "#ffffff",
         fontSize: "14px",
       },
@@ -55,7 +55,7 @@ export async function renderMermaid(root: HTMLElement): Promise<void> {
       const fig = document.createElement("figure");
       fig.className = "diagram";
       const kind = code.trim().split(/\s+/)[0] ?? "mermaid";
-      fig.innerHTML = `<div class="diagram__bar"><span>mermaid · ${kind.replace(/[<>&"]/g, "")}</span><span class="window__dots" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="diagram__canvas">${svg}</div>`;
+      fig.innerHTML = `<div class="diagram__bar"><span>mermaid</span><span class="diagram__kind">${kind.replace(/[<>&"]/g, "")}</span></div><div class="diagram__canvas">${svg}</div>`;
       pre.replaceWith(fig);
     } catch (e) {
       document.getElementById(`d${id}`)?.remove();

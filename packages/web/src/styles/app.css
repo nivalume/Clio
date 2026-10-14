@@ -25,13 +25,13 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--pink);
+  outline: 3px solid var(--cobalt);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--yellow);
-  color: var(--on-candy);
+  background: var(--cobalt);
+  color: var(--on-cobalt);
 }
 
 .sr-only {
@@ -54,9 +54,9 @@ button {
   align-items: center;
   gap: 18px;
   padding: 0 24px;
-  background: var(--yellow);
-  color: var(--on-candy);
-  border-bottom: 2px solid #141111;
+  background: var(--bar);
+  color: var(--on-bar);
+  border-bottom: 3px solid var(--cobalt);
 }
 
 .brand {
@@ -69,14 +69,14 @@ button {
   letter-spacing: -0.02em;
 }
 
+/* The wordmark: a cobalt tile with a tomato hard shadow. */
 .brand__mark {
   display: inline-block;
-  padding: 1px 8px 2px;
-  background: #141111;
-  color: var(--yellow);
-  font-style: italic;
-  transform: skewX(-8deg);
-  box-shadow: 3px 3px 0 #fffaef;
+  padding: 1px 10px 2px;
+  border-radius: 6px;
+  background: #3a5cff;
+  color: #ffffff;
+  box-shadow: 3px 3px 0 var(--tomato);
 }
 
 .brand__sub {
@@ -84,6 +84,7 @@ button {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
+  color: var(--on-bar-muted);
 }
 
 .topbar__nav {
@@ -98,17 +99,21 @@ button {
   font-size: 14px;
   text-decoration: none;
   padding: 4px 2px;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
 }
 
-.topbar__link:hover,
+.topbar__link:hover {
+  border-bottom-color: var(--on-bar-muted);
+}
+
 .topbar__link[aria-current="page"] {
-  border-bottom-color: #141111;
+  border-bottom-color: var(--cobalt);
 }
 
+/* On the ink bar an ink shadow would vanish: buttons cast a cobalt one. */
 .topbar .btn {
-  box-shadow: 3px 3px 0 #141111;
-  border-color: #141111;
+  border-color: #15151c;
+  box-shadow: 3px 3px 0 var(--cobalt);
 }
 
 .menu-button {
@@ -122,7 +127,7 @@ button {
   align-items: center;
   gap: 8px;
   padding: 7px 14px;
-  border: 2px solid #141111;
+  border: 2px solid #15151c;
   background: #ffffff;
   color: var(--on-candy);
   font-weight: 700;
@@ -145,17 +150,13 @@ button {
   box-shadow: 0 0 0 var(--ink);
 }
 
-.btn--pink {
-  background: var(--pink);
+/* The main action on a screen. */
+.btn--action {
+  background: var(--tomato);
 }
-.btn--yellow {
-  background: var(--yellow);
-}
-.btn--lime {
-  background: var(--lime);
-}
-.btn--cyan {
-  background: var(--cyan);
+.btn--accent {
+  background: var(--cobalt);
+  color: var(--on-cobalt);
 }
 .btn--small {
   padding: 3px 9px;
@@ -189,8 +190,9 @@ button {
   align-items: center;
   gap: 4px;
   padding: 0 7px;
-  border: 1.5px solid #141111;
-  background: var(--stone);
+  border: 1.5px solid #15151c;
+  border-radius: 4px;
+  background: var(--pebble);
   color: var(--on-candy);
   font-size: 12px;
   font-weight: 700;
@@ -215,27 +217,134 @@ button {
   color: var(--muted);
 }
 
-/* ---------------------------------------------------------------- windows */
+/* ---------------------------------------------------------------- panels (folder tabs) */
 
-.window {
+.panel {
+  position: relative;
+  min-width: 0;
+}
+
+.panel__head {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.panel__tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Tabs overlap the body's top border so the active one joins the panel. */
+  margin-bottom: -2px;
+  position: relative;
+  z-index: 1;
+}
+
+.panel__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  max-width: 100%;
+  padding: 6px 14px 7px;
+  border: 2px solid var(--line);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 13.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+button.panel__tab {
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+button.panel__tab:hover {
+  color: var(--ink);
+}
+
+/* The active tab: card colour, taller, a coloured strip on top, and it covers the body's border below it. */
+.panel__tab--title,
+.panel__tab[aria-selected="true"] {
+  margin-top: 0;
+  padding-top: 8px;
+  padding-bottom: 9px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: inset 0 4px 0 var(--tab, var(--cobalt));
+}
+
+.panel__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel__tab small {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11.5px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel__glyph {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 1.5px solid #15151c;
+  border-radius: 4px;
+  background: var(--tab, var(--cobalt));
+  color: var(--on-candy);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.panel__count {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.panel__tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  flex: none;
+}
+
+.panel__body {
   position: relative;
   background: var(--card);
   border: 2px solid var(--line);
-  border-radius: var(--radius-window);
+  border-radius: 0 var(--radius) var(--radius) var(--radius);
   box-shadow: var(--shadow-lg);
   min-width: 0;
 }
 
-/* Halftone shadow. The window is not a stacking context but its .window-shell
-   wrapper is, so z-index -1 puts the dots behind the window's background and
-   above the page: only the offset part shows. */
-.window-shell {
+/* Halftone shadow. The panel-shell wrapper is the stacking context, so z-index -1 puts the dots
+   behind the panel body and above the page: only the offset part shows. */
+.panel-shell {
   position: relative;
   isolation: isolate;
   min-width: 0;
 }
 
-.window--dotted::after {
+.panel--dotted .panel__body::after {
   content: "";
   position: absolute;
   z-index: -1;
@@ -247,99 +356,21 @@ button {
   pointer-events: none;
 }
 
-.window__bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-bottom: 2px solid var(--line);
-  min-height: 56px;
-}
-
-.window__icon {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  background: var(--yellow);
-  color: var(--on-candy);
-  border: 2px solid #141111;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.window__title {
-  min-width: 0;
-  font-weight: 700;
-  font-size: 15.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.window__title small {
-  margin-left: 8px;
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-.window__tools {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.window__dots {
-  display: inline-flex;
-  gap: 4px;
-}
-.window__dots i {
-  width: 8px;
-  height: 8px;
-  border: 1.5px solid var(--line);
-}
-.window__dots i:first-child {
-  background: var(--ink);
-}
-
-.window__body {
+.panel__pad {
   padding: 18px 20px;
 }
 
-.window__body--flush {
-  padding: 0;
-}
-
-.tabs {
-  display: flex;
-  border-bottom: 2px solid var(--line);
-  overflow-x: auto;
-}
-
-.tabs button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 18px;
-  border: none;
-  border-right: 2px solid var(--line);
-  background: transparent;
+.panel__foot {
+  padding: 8px 14px;
+  border-top: 2px solid var(--line);
+  font-size: 12.5px;
   font-weight: 700;
-  font-size: 13.5px;
-  cursor: pointer;
+  text-align: right;
 }
 
-.tabs button[aria-selected="true"] {
-  background: var(--yellow);
-  color: var(--on-candy);
-}
-
-.tabs button:hover:not([aria-selected="true"]) {
-  background: var(--paper-2);
+.panel__foot a {
+  text-decoration: none;
+  border-bottom: 2px solid var(--cobalt);
 }
 
 /* ---------------------------------------------------------------- shell */
@@ -456,15 +487,16 @@ button {
 }
 
 .channel[aria-current="page"] {
-  background: var(--yellow);
-  color: var(--on-candy);
-  border-color: #141111;
+  background: var(--cobalt);
+  color: var(--on-cobalt);
+  border-color: var(--line);
+  border-radius: 4px;
   font-weight: 700;
   box-shadow: 2px 2px 0 var(--ink);
 }
 
 .channel[aria-current="page"] .channel__hash {
-  color: var(--on-candy);
+  color: var(--on-cobalt);
 }
 
 .channel--child {
@@ -473,10 +505,6 @@ button {
 }
 
 /* ---------------------------------------------------------------- page */
-
-.page-window .window__bar {
-  flex-wrap: wrap;
-}
 
 .page-meta {
   display: flex;
@@ -597,7 +625,9 @@ button {
   position: relative;
   width: 34px;
   height: 34px;
-  border: 2px solid #141111;
+  border: 2px solid #15151c;
+  border-radius: 4px;
+  overflow: hidden;
   image-rendering: pixelated;
   flex: none;
 }
@@ -616,8 +646,8 @@ button {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--lime);
-  border: 2px solid #141111;
+  background: var(--mint);
+  border: 2px solid #15151c;
 }
 
 /* ---------------------------------------------------------------- TOC */
@@ -643,7 +673,7 @@ button {
 }
 
 .toc a[data-active="true"] {
-  border-left-color: var(--pink);
+  border-left-color: var(--cobalt);
   color: var(--ink);
   font-weight: 700;
   background: var(--paper-2);
@@ -765,8 +795,10 @@ button {
   position: absolute;
   width: 54px;
   height: 54px;
-  border: 2px solid #141111;
-  box-shadow: 3px 3px 0 #141111;
+  border: 2px solid #15151c;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 #15151c;
   z-index: 2;
 }
 
@@ -777,10 +809,10 @@ button {
 }
 
 .band {
-  background: var(--yellow);
-  color: var(--on-candy);
-  border-top: 2px solid #141111;
-  border-bottom: 2px solid #141111;
+  background: var(--cobalt);
+  color: #ffffff;
+  border-top: 2px solid #15151c;
+  border-bottom: 2px solid #15151c;
   padding: 48px 30px;
   text-align: center;
 }
@@ -881,13 +913,8 @@ button {
 }
 
 .palette__results .msg[aria-selected="true"] {
-  background: var(--yellow);
-  color: var(--on-candy);
-}
-
-.palette__results .msg[aria-selected="true"] .msg__text,
-.palette__results .msg[aria-selected="true"] .msg__time {
-  color: var(--on-candy);
+  background: var(--cobalt-tint);
+  box-shadow: inset 4px 0 0 var(--cobalt);
 }
 
 .palette__empty {
@@ -977,7 +1004,7 @@ button {
 }
 
 .g-node .shape {
-  stroke: #141111;
+  stroke: #15151c;
   stroke-width: 2;
 }
 
@@ -1023,7 +1050,8 @@ button {
   pointer-events: none;
   max-width: 280px;
   padding: 8px 10px;
-  border: 2px solid #141111;
+  border: 2px solid var(--line);
+  border-radius: 6px;
   background: var(--card);
   box-shadow: var(--shadow);
   font-size: 12.5px;
@@ -1071,7 +1099,7 @@ button {
   margin: 12vh auto;
 }
 
-.empty-state .window__body {
+.empty-state .panel__pad {
   font-size: 15px;
 }
 
@@ -1085,18 +1113,6 @@ button {
   min-width: 0;
 }
 
-.window__foot {
-  padding: 8px 14px;
-  border-top: 2px solid var(--line);
-  font-size: 12.5px;
-  font-weight: 700;
-  text-align: right;
-}
-
-.window__foot a {
-  text-decoration: none;
-  border-bottom: 1.5px solid currentColor;
-}
 
 /* a row of toggle buttons sharing borders */
 .segmented {
@@ -1120,8 +1136,8 @@ button {
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--yellow);
-  color: var(--on-candy);
+  background: var(--cobalt);
+  color: var(--on-cobalt);
 }
 
 /* sidebar rows with an expand button */
@@ -1166,9 +1182,17 @@ button {
 }
 
 /* search palette */
-.palette__window .window__title {
-  flex: 1;
+.palette__search {
   display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--line);
+}
+
+.palette__search span {
+  color: var(--cobalt-text);
+  font-weight: 700;
 }
 
 .palette__label {
@@ -1192,7 +1216,7 @@ button {
 }
 
 .marker {
-  background: linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 92%, transparent 92%);
+  background: linear-gradient(transparent 58%, var(--sun) 58%, var(--sun) 92%, transparent 92%);
   padding: 0 4px;
 }
 
@@ -1245,15 +1269,14 @@ button {
   color: var(--muted);
 }
 
-.graph-card .window__bar {
-  min-height: 0;
-  padding: 8px 10px;
+.graph-card .panel__tab {
+  max-width: calc(100% - 50px);
 }
 
-.graph-card .window__title {
+.graph-card .panel__title {
   white-space: normal;
-  font-size: 14.5px;
-  line-height: 1.35;
+  font-size: 14px;
+  line-height: 1.3;
 }
 
 .graph-card__body {
@@ -1300,8 +1323,9 @@ button {
 
 .chip {
   padding: 0 6px;
-  border: 1.5px solid #141111;
-  background: var(--stone);
+  border: 1.5px solid #15151c;
+  border-radius: 4px;
+  background: var(--pebble);
   color: var(--on-candy);
   font-family: var(--font-mono);
   font-size: 11px;
@@ -1388,11 +1412,17 @@ button {
   .sticker {
     display: none;
   }
-  .page-window .window__bar {
-    flex-wrap: nowrap;
-  }
-  .page-window .window__title small {
+  .panel__tab small {
     display: none;
+  }
+  .panel__head {
+    flex-wrap: wrap;
+  }
+  .panel__tools {
+    order: -1;
+    width: 100%;
+    justify-content: flex-end;
+    padding-bottom: 6px;
   }
   .shell__side {
     position: fixed;

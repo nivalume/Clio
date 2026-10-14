@@ -44,7 +44,7 @@ export function HealthPage({ lang }: { lang: string }) {
   const count = (l: string) => data.diags.filter((d) => d.level === l).length;
   return (
     <div className="split-page">
-      <Window icon="!" iconColor="var(--red)" title={t.lint} subtitle={`${count("error")} ${t.errors} · ${count("warning")} ${t.warnings} · ${count("info")} ${t.notices}`}
+      <Window icon="!" iconColor="var(--error)" title={t.lint} subtitle={`${count("error")} ${t.errors} · ${count("warning")} ${t.warnings} · ${count("info")} ${t.notices}`}
         tools={
           <span className="segmented" role="group">
             {(["error", "warning", "info"] as const).map((l) => (
@@ -76,7 +76,7 @@ export function HealthPage({ lang }: { lang: string }) {
           </details>
         ))}
       </Window>
-      <Window icon="?" iconColor="var(--card)" title={t.wantedNotes} subtitle={String(data.wanted.length)}>
+      <Window icon="?" iconColor="var(--pebble)" title={t.wantedNotes} subtitle={String(data.wanted.length)}>
         {data.wanted.length === 0 ? <p className="muted pad">{t.noIssues}</p> : null}
         <div className="chat">
           {data.wanted.map((w) => (

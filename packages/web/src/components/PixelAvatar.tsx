@@ -20,7 +20,7 @@ export function PixelAvatar({ type, online = false, size = 34, title }: { type: 
     >
       <svg viewBox="-1 -1 10 10" shapeRendering="crispEdges">
         <rect x="-1" y="-1" width="10" height="10" fill={style.color} />
-        <path d={d} fill="#141111" />
+        <path d={d} fill="#15151c" />
       </svg>
     </span>
   );

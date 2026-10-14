@@ -8,7 +8,7 @@
 
 .prose a.wl {
   text-decoration: none;
-  border-bottom: 2px solid var(--pink);
+  border-bottom: 2px solid var(--cobalt);
   color: var(--ink);
   font-weight: 600;
 }
@@ -52,7 +52,7 @@ li:has(> .block-anchor:target) {
 /* ---------------------------------------------------------------- callouts */
 
 .callout {
-  --callout: var(--lavender);
+  --callout: var(--lilac);
   margin: 0 0 18px;
   border: 2px solid var(--line);
   background: var(--card);
@@ -63,7 +63,7 @@ li:has(> .block-anchor:target) {
 .callout[data-callout="info"],
 .callout[data-callout="abstract"],
 .callout[data-callout="summary"] {
-  --callout: var(--cyan);
+  --callout: var(--sky);
 }
 
 .callout[data-callout="tip"],
@@ -71,32 +71,32 @@ li:has(> .block-anchor:target) {
 .callout[data-callout="success"],
 .callout[data-callout="check"],
 .callout[data-callout="done"] {
-  --callout: var(--lime);
+  --callout: var(--mint);
 }
 
 .callout[data-callout="important"],
 .callout[data-callout="question"],
 .callout[data-callout="faq"],
 .callout[data-callout="example"] {
-  --callout: var(--lavender);
+  --callout: var(--lilac);
 }
 
 .callout[data-callout="warning"],
 .callout[data-callout="caution"],
 .callout[data-callout="attention"] {
-  --callout: var(--yellow);
+  --callout: var(--sun);
 }
 
 .callout[data-callout="danger"],
 .callout[data-callout="error"],
 .callout[data-callout="failure"],
 .callout[data-callout="bug"] {
-  --callout: var(--red);
+  --callout: var(--tomato);
 }
 
 .callout[data-callout="quote"],
 .callout[data-callout="cite"] {
-  --callout: var(--stone);
+  --callout: var(--pebble);
 }
 
 .callout-title {
@@ -106,7 +106,7 @@ li:has(> .block-anchor:target) {
   padding: 6px 12px;
   background: var(--callout);
   color: var(--on-candy);
-  border-bottom: 2px solid #141111;
+  border-bottom: 2px solid #15151c;
   font-weight: 700;
   font-size: 14px;
   list-style: none;
@@ -138,7 +138,8 @@ details.callout[open] > .callout-title::after {
   width: 14px;
   height: 14px;
   flex: none;
-  border: 2px solid #141111;
+  border: 2px solid #15151c;
+  border-radius: 3px;
   background: var(--card);
 }
 
@@ -199,8 +200,8 @@ details.callout[open] > .callout-title::after {
 }
 
 .tab-button[aria-selected="true"] {
-  background: var(--yellow);
-  color: var(--on-candy);
+  background: var(--cobalt);
+  color: var(--on-cobalt);
 }
 
 .directive-tab {
@@ -273,9 +274,10 @@ details.callout[open] > .callout-title::after {
   height: 28px;
   display: grid;
   place-items: center;
-  border: 2px solid #141111;
-  background: var(--yellow);
-  color: var(--on-candy);
+  border: 2px solid #15151c;
+  border-radius: 50%;
+  background: var(--cobalt);
+  color: var(--on-cobalt);
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 13px;
@@ -330,7 +332,7 @@ details.callout[open] > .callout-title::after {
   margin: 0 0 20px;
   border: 2px solid var(--line);
   border-left-width: 8px;
-  border-left-color: var(--cyan);
+  border-left-color: var(--sky);
   background: var(--card);
 }
 
@@ -444,7 +446,7 @@ details.callout[open] > .callout-title::after {
 }
 
 .query-error {
-  border-color: var(--red);
+  border-color: var(--error);
 }
 
 /* ---------------------------------------------------------------- code */
@@ -509,15 +511,15 @@ figure.code .line {
 
 figure.code .line.highlighted {
   background: var(--highlight);
-  box-shadow: inset 4px 0 0 var(--pink);
+  box-shadow: inset 4px 0 0 var(--cobalt);
 }
 
 figure.code .line.diff.add {
-  background: color-mix(in srgb, var(--lime) 30%, transparent);
+  background: color-mix(in srgb, var(--mint) 30%, transparent);
 }
 
 figure.code .line.diff.remove {
-  background: color-mix(in srgb, var(--red) 25%, transparent);
+  background: color-mix(in srgb, var(--tomato) 25%, transparent);
 }
 
 .code-copy {
@@ -591,7 +593,7 @@ pre.mermaid {
 }
 
 pre.mermaid-error {
-  border-color: var(--red);
+  border-color: var(--error);
 }
 
 .chart {
@@ -652,7 +654,8 @@ pre.mermaid-error {
 .chart-legend i {
   width: 12px;
   height: 12px;
-  border: 1.5px solid #141111;
+  border: 1.5px solid #15151c;
+  border-radius: 2px;
 }
 
 .chart-table {
@@ -672,10 +675,11 @@ pre.mermaid-error {
   z-index: 80;
   width: 320px;
   padding: 10px 12px;
-  border: 2px solid #141111;
+  border: 2px solid var(--line);
+  border-radius: 6px;
   background: var(--card);
   color: var(--ink);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-accent);
   font-size: 13px;
   pointer-events: none;
 }

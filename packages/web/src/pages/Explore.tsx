@@ -57,7 +57,7 @@ export function ExplorePage({ lang, params }: { lang: string; params: URLSearchP
 
   return (
     <div className="wide-page">
-      <Window icon="≡" iconColor="var(--lime)" title={t.explore} subtitle={`${rows.length} / ${m.id.length}`}>
+      <Window icon="≡" iconColor="var(--mint)" title={t.explore} subtitle={`${rows.length} / ${m.id.length}`}>
         <div className="filter-bar" role="toolbar">
           <button type="button" className="btn btn--small" aria-pressed={!type} onClick={() => set("type", "")}>
             {t.all}

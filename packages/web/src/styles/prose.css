@@ -41,8 +41,9 @@
   flex: none;
   width: 12px;
   height: 12px;
-  background: var(--yellow);
-  border: 2px solid #141111;
+  background: var(--cobalt);
+  border: 2px solid #15151c;
+  border-radius: 3px;
   box-shadow: 2px 2px 0 var(--ink);
   transform: translateY(-1px);
 }
@@ -97,8 +98,8 @@
 }
 
 .prose a:hover {
-  background: var(--yellow);
-  color: var(--on-candy);
+  background: var(--cobalt-tint);
+  color: var(--ink);
 }
 
 .prose a[data-external="true"]::after {
@@ -109,7 +110,7 @@
 
 .prose a[data-missing="true"] {
   border-bottom-style: dashed;
-  border-bottom-color: var(--red);
+  border-bottom-color: var(--error);
   background: none;
 }
 
@@ -165,53 +166,19 @@
 }
 
 .prose a.code-link code {
-  background: var(--code-link);
-  border-color: var(--lavender);
+  background: var(--cobalt-tint);
+  border-color: var(--lilac);
 }
 
 .prose a.code-link:hover code {
-  background: var(--pink);
+  background: var(--tomato);
   color: var(--on-candy);
-  border-color: #141111;
+  border-color: #15151c;
 }
 
 .prose h2 code,
 .prose h3 code {
   font-size: 0.82em;
-}
-
-/* code blocks: a small window of their own */
-.codeblock {
-  margin: 0 0 20px;
-  border: 2px solid var(--line);
-  background: var(--paper);
-  box-shadow: var(--shadow);
-  min-width: 0;
-}
-
-.codeblock__bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 10px;
-  border-bottom: 2px solid var(--line);
-  background: var(--card);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.codeblock__bar .window__dots {
-  margin-left: auto;
-}
-
-.codeblock__copy {
-  border: 1.5px solid var(--line);
-  background: var(--card);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 0 6px;
-  cursor: pointer;
 }
 
 .prose pre {
@@ -250,11 +217,11 @@
 }
 
 .prose th {
-  background: var(--yellow);
-  color: var(--on-candy);
+  background: var(--cobalt-tint);
+  color: var(--ink);
   text-align: left;
   font-weight: 700;
-  border-bottom: 2px solid #141111;
+  border-bottom: 2px solid var(--line);
 }
 
 .prose th,
@@ -278,7 +245,7 @@
 
 .prose th a,
 .prose th code {
-  color: var(--on-candy);
+  color: var(--ink);
 }
 
 /* quotes as callouts */
@@ -288,7 +255,7 @@
   padding: 12px 16px 12px 18px;
   border: 2px solid var(--line);
   border-left-width: 10px;
-  border-left-color: var(--lavender);
+  border-left-color: var(--lilac);
   background: var(--card);
   box-shadow: var(--shadow-sm);
 }
@@ -332,7 +299,7 @@
   color: var(--muted);
 }
 
-.diagram__bar .window__dots {
+.diagram__bar .diagram__kind {
   margin-left: auto;
 }
 
@@ -351,72 +318,7 @@
   padding: 12px 14px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--red);
+  color: var(--ink);
+  border-left: 4px solid var(--error);
   white-space: pre-wrap;
-}
-
-/* syntax highlighting (highlight.js classes), kept to ink + two accents */
-.hljs-comment,
-.hljs-quote {
-  color: var(--muted);
-  font-style: italic;
-}
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-built_in,
-.hljs-type {
-  color: #b4235a;
-  font-weight: 700;
-}
-.hljs-string,
-.hljs-attr,
-.hljs-symbol,
-.hljs-regexp {
-  color: #2f6b12;
-}
-.hljs-number,
-.hljs-literal {
-  color: #6338c7;
-}
-.hljs-title,
-.hljs-function .hljs-title,
-.hljs-title.function_ {
-  color: #0c6d8c;
-  font-weight: 700;
-}
-.hljs-meta {
-  color: var(--muted);
-}
-
-:root[data-theme="dark"] .hljs-keyword,
-:root[data-theme="dark"] .hljs-built_in,
-:root[data-theme="dark"] .hljs-type {
-  color: var(--pink);
-}
-:root[data-theme="dark"] .hljs-string,
-:root[data-theme="dark"] .hljs-attr {
-  color: var(--lime);
-}
-:root[data-theme="dark"] .hljs-number,
-:root[data-theme="dark"] .hljs-literal {
-  color: var(--lavender);
-}
-:root[data-theme="dark"] .hljs-title,
-:root[data-theme="dark"] .hljs-title.function_ {
-  color: var(--cyan);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) .hljs-keyword {
-    color: var(--pink);
-  }
-  :root:where(:not([data-theme="light"])) .hljs-string {
-    color: var(--lime);
-  }
-  :root:where(:not([data-theme="light"])) .hljs-number {
-    color: var(--lavender);
-  }
-  :root:where(:not([data-theme="light"])) .hljs-title {
-    color: var(--cyan);
-  }
 }

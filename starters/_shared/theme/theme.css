@@ -4,18 +4,21 @@
  * Dark mode values go under :root[data-theme="dark"].
  */
 :root {
-  /* --paper: #fffaef;      page background */
-  /* --ink: #141111;        text and outlines */
-  /* --yellow: #ffd440;     top bar, highlights */
-  /* --pink: #fe7da8;       buttons, links */
-  /* --cyan: #27ccf3; */
-  /* --lime: #a9d877; */
-  /* --lavender: #bbafe6; */
-  /* --orange: #f8a16f; */
+  /* --paper: #f2f0ea;      page background */
+  /* --ink: #15151c;        text and outlines */
+  /* --cobalt: #3a5cff;     selection, current item, focus ring */
+  /* --tomato: #ff5a3c;     main buttons */
+  /* --periwinkle: #8197ff; type colours */
+  /* --sky: #7fd4ff; */
+  /* --lilac: #b69cff; */
+  /* --sun: #ffc93d; */
+  /* --mint: #3fcf9a; */
+  /* --pebble: #dad6ca; */
   /* --font-text: "Space Grotesk", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; */
   /* --font-mono: "Space Mono", ui-monospace, monospace; */
 }
 
 :root[data-theme="dark"] {
-  /* --paper: #141111; */
+  /* --paper: #121218; */
+  /* --cobalt: #7088ff; */
 }

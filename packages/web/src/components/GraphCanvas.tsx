@@ -109,7 +109,7 @@ export function computeLayout(g: GraphData): Layout {
   return { x, y, r, adj };
 }
 
-/** Resolve CSS custom properties (`var(--yellow)`) for canvas drawing. */
+/** Resolve CSS custom properties (`var(--cobalt)`) for canvas drawing. */
 function resolver() {
   const css = getComputedStyle(document.documentElement);
   const cache = new Map<string, string>();
@@ -190,7 +190,7 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
     const muted = color("var(--muted)");
     const card = color("var(--card)");
     const lineSoft = color("var(--line-soft)");
-    const pink = color("var(--pink)");
+    const tomato = color("var(--tomato)");
     const { w, h } = size.current;
     const dpr = window.devicePixelRatio || 1;
     const t = transform.current;
@@ -288,7 +288,7 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
         continue;
       }
       ctx.fillStyle = color(st.color);
-      ctx.strokeStyle = "#141111";
+      ctx.strokeStyle = "#15151c";
       if (st.shape === "circle") {
         drawShape(ctx, "circle", layout.x[i], layout.y[i], r);
         ctx.fill();
@@ -307,8 +307,8 @@ export function GraphCanvas({ data, layout, hiddenTypes, hiddenKinds, matches, s
       ctx.lineWidth = 2.5 / t.k;
       ctx.stroke();
     };
-    for (const i of matches) if (visible[i]) ring(i, pink, 4);
-    if (selected != null && visible[selected]) ring(selected, ink, 5);
+    for (const i of matches) if (visible[i]) ring(i, tomato, 4);
+    if (selected != null && visible[selected]) ring(selected, color("var(--cobalt)"), 5);
     ctx.restore();
 
     // Labels in screen space so text stays crisp at any zoom.

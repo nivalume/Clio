@@ -30,10 +30,10 @@ function NotFound({ lang }: { lang: string }) {
   }, []);
   return (
     <div className="empty-state">
-      <Window dotted icon="?" iconColor="var(--red)" title="404" subtitle={window.location.pathname}>
-        <div className="window__body">
+      <Window dotted icon="?" iconColor="var(--error)" title="404" subtitle={window.location.pathname}>
+        <div className="panel__pad">
           <p>{t.notFound}</p>
-          <a className="btn btn--pink" href={href.home(lang)}>
+          <a className="btn btn--action" href={href.home(lang)}>
             ← {t.backHome}
           </a>
         </div>
