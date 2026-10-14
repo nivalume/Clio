@@ -158,6 +158,7 @@ export async function buildSite(vault: Vault, opts: BuildOptions = {}): Promise<
     description: c.description(lang),
     repo: c.repo ?? undefined,
     editPath: c.editPath,
+    types: vault.settings.engine.types.map((t) => t.name),
     app: `${c.base}_app/`,
     data: `${c.base}_clio/${lang}/`,
     pagefind: `${c.base}pagefind/`,

@@ -1,6 +1,9 @@
+import { boot } from "./boot";
+
 /**
  * How each note type looks: colour, graph shape and 8×8 pixel icon. Known
- * types have fixed choices; custom types take the next colour/shape pair.
+ * types have fixed choices; custom types take the colour/shape pairs in the
+ * order clio.toml declares them, so a type looks the same on every page.
  */
 export type Shape = "star" | "circle" | "square" | "triangle" | "diamond" | "cross" | "wye";
 
@@ -44,12 +47,20 @@ const EXTRA: Omit<TypeStyle, "pixels">[] = [
   { color: "var(--sun)", shape: "star" },
 ];
 
-const assigned = new Map<string, number>();
+const custom = (boot.types ?? []).filter((t) => !(t in KNOWN));
+
+/** Position of a custom type in clio.toml; a type no config declares gets a hash of its name. */
+function extraIndex(type: string): number {
+  const i = custom.indexOf(type);
+  if (i >= 0) return i;
+  let h = 0;
+  for (const ch of type) h = (h * 31 + ch.codePointAt(0)!) >>> 0;
+  return custom.length + h;
+}
 
 export function typeStyle(type: string): TypeStyle {
   const known = KNOWN[type];
   const pixels = (PIX as Record<string, string[]>)[type] ?? PIX.note;
   if (known) return { ...known, pixels };
-  if (!assigned.has(type)) assigned.set(type, assigned.size % EXTRA.length);
-  return { ...EXTRA[assigned.get(type)!], pixels };
+  return { ...EXTRA[extraIndex(type) % EXTRA.length], pixels };
 }

@@ -13,6 +13,8 @@ export interface Boot {
   page?: PageData;
   repo?: string;
   editPath?: string;
+  /** Every type in clio.toml order (built-ins first). */
+  types?: string[];
   app: string;
   data: string;
   pagefind: string;
